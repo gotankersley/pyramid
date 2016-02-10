@@ -1,9 +1,10 @@
 var Network = (function() { //Network namespace (Module pattern)
 	var URL = '/pyramid/js/tools/network-test.js'; //For other domains add "Access-Control-Allow-Origin: *" to the header
-		
-	function getMove(board, onComplete) {
+	
+	function getMove(board, onComplete) {		
+		if (!networkUrl) networkUrl = prompt('Enter a service URL', URL);
 		var queryString = '?turn=' + board.bb[TURN];
-		var url = URL + queryString;
+		var url = networkUrl + queryString;
 		ajax(url, function(data, status) {
 			//Expect a QMN String - Example: A5-B4  (dash is optional)
 			var qmnStr = data.qmn;
@@ -28,3 +29,4 @@ var Network = (function() { //Network namespace (Module pattern)
 	return {getMove:getMove};
 
 })(); //End Network namespace
+var networkUrl = null;
