@@ -1,0 +1,81 @@
+<!DOCYTYPE html>
+<html>
+<head>
+<title>Bit tool</title>
+<script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
+<script src="../js/lib/bit-lib.js"></script>
+<style>
+	td {text-align:center;}
+	td[data-pos] {border: 1px solid black;}
+	td[data-pos].active {background-color: #f00;}
+	td[data-pos]:hover {background-color: #9cf;}
+</style>
+</head>
+<body>
+
+<!-- Board -->
+<table id="board" border="0" width="550" height="650">
+<tr id="r0" data-row="0">  <!-- Row 0 -->    
+    <td data-pos="0">0</td>
+    <td></td>
+    <td data-pos="1">1</td>	
+    <td data-pos="5">5</td>
+    <td></td>
+    <td data-pos="6">6</td>
+</tr>    
+<tr id="r1" data-row="1">  <!-- Row 1 -->    
+    <td></td>
+    <td data-pos="2">2</td>
+    <td></td>
+    <td></td>
+    <td data-pos="7">7</td>	    
+    <td></td>    
+</tr> 
+<tr id="r2" data-row="2">  <!-- Row 2 -->    
+    <td data-pos="3">3</td>
+    <td></td>
+    <td data-pos="4">4</td>	
+    <td data-pos="8">8</td>
+    <td></td>
+    <td data-pos="9">9</td>
+</tr> 
+<tr id="r3" data-row="3">  <!-- Row 3 -->    
+    <td data-pos="10">10</td>
+    <td></td>
+    <td data-pos="11">11</td>	
+    <td data-pos="15">15</td>
+    <td></td>
+    <td data-pos="16">16</td>
+</tr> 
+<tr id="r4" data-row="4">  <!-- Row 4 -->    
+    <td></td>
+    <td data-pos="12">12</td>
+    <td></td>
+    <td></td>
+    <td data-pos="17">17</td>	    
+    <td></td>   
+</tr> 
+<tr id="r5" data-row="5">  <!-- Row 5 -->    
+    <td data-pos="13">13</td>
+    <td></td>
+    <td data-pos="14">14</td>	
+    <td data-pos="18">18</td>
+    <td></td>
+    <td data-pos="19">19</td>
+</tr> 
+<tr id="r6" class="signal" data-row="6">  <!-- Row 6 | Signal -->  
+<td data-pos="20">20</td>
+</tr>
+</table>
+
+<!-- Conversion tools -->
+<div id="tools">
+<input type="text" id="inputBoard" size="60"/>
+<button onclick="setBoard();">Set</button>
+<button onclick="resetBoard();">Reset</button><br/>
+Binary: <span id="outBin"></span><br/>
+Hex: <span id="outHex"></span><br/>
+</div>
+<script src="bit-tool.js"></script>
+</body>
+</html>

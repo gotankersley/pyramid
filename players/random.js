@@ -1,0 +1,4 @@
+//Class RandomPlayer
+function RandomPlayer() {
+
+}
