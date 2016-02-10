@@ -50,7 +50,7 @@ var TURN = 2; //Turn index
 
 //Masks
 var SIGNAL_MASK = 0x100000;
-var NOT_SIGNAL = 0xfffff; 
+//var NOT_SIGNAL = 0xfffff; //JS numbers are signed so bitwise NOT's can have unwanted side-effects 
 var THREE_NO_WIN1 = 0x15;
 var THREE_NO_WIN2 = 0xe;
 

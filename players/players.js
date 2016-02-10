@@ -1,5 +1,6 @@
 var PLAYER_HUMAN = 0;
 var PLAYER_RANDOM = 1;
+var PLAYER_NETWORK = 2;
 
 var INVALID = -1;
 
@@ -21,13 +22,18 @@ Players.prototype.getMove = function(board, onPlayed) {
 	else if (moves.length == 1) onPlayed(moves[0]);
 	
 	var player = this.getCurrent(board);
-	var move;
-	//Random
-	if (player == PLAYER_RANDOM) move = this.getRandom(board);
 	
-	//Invalid
-	else move = {sr:INVALID, sc:INVALID};
-	onPlayed(move); //Callback
+	//Network (Async)
+	if (player == PLAYER_NETWORK) Network.getMove(board, onPlayed);
+	else { //Sync
+		var move;
+		//Random
+		if (player == PLAYER_RANDOM) move = this.getRandom(board);		
+		
+		//Invalid
+		else move = {sr:INVALID, sc:INVALID};
+		onPlayed(move); //Callback
+	}
 }
 
 Players.prototype.getRandom = function(board) {

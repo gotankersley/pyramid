@@ -1,6 +1,5 @@
 'use strict'
 //Constants
-var MOVE_DELAY = 3000;
 
 
 //Class Game
@@ -40,7 +39,7 @@ Game.prototype.onMoveMade = function(move, prevTurn) {
 	else {
 		if (this.players.getCurrent(this.board) != PLAYER_HUMAN) { //Continue playing if not human
 			//Give draw enough time to display board				
-			setTimeout(this.onMoveStart.bind(this), MOVE_DELAY); 
+			setTimeout(this.onMoveStart.bind(this), menu.moveDelay); 
 		}
 	}
 }

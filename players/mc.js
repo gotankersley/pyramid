@@ -28,4 +28,4 @@ var MC = (function() { //Poor man's namespace (module pattern)
 	return {
 		getMove:getMove
 	}
-}; //End namespace MC
+}){}; //End namespace MC

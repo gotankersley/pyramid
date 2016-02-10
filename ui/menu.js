@@ -4,7 +4,7 @@ function MenuProperties() {
 	this.showGrid = false;
 	this.showPositions = false;
 	this.showPaths = true;
-	
+	this.moveDelay = 3000;
 	this.player1 = PLAYER_HUMAN;
 	this.player2 = PLAYER_HUMAN;
 
@@ -21,9 +21,10 @@ function MenuManager() {
 	optionsMenu.add(this.properties, 'showGrid');	
 	optionsMenu.add(this.properties, 'showPositions');	
 	optionsMenu.add(this.properties, 'showPaths');	
+	optionsMenu.add(this.properties, 'moveDelay', 0, 10000);	
 	
 	//Root menu	
-	var playerOptions = {Human:PLAYER_HUMAN, Random:PLAYER_RANDOM};
+	var playerOptions = {Human:PLAYER_HUMAN, Random:PLAYER_RANDOM, Network:PLAYER_NETWORK};
 	this.rootMenu.add(this.properties, 'player1', playerOptions).onChange(this.onChangePlayer);
 	this.rootMenu.add(this.properties, 'player2', playerOptions).onChange(this.onChangePlayer);
 }

@@ -31,7 +31,7 @@ Board.prototype.get = function(r, c) {
 	else return BOARD_EMPTY;
 }
 
-Board.prototype.qmnToPos = function(qmn) {
+Board.prototype.qmnToRC = function(qmn) {
 	//Quadtria Move Notation: [Source Quad Letter][Source Quad Id] - [Dest Quad Letter][Dest Quad Id]
 	// - Case insensitive
 	// - May contain a dash
@@ -45,12 +45,16 @@ Board.prototype.qmnToPos = function(qmn) {
 		var srcQuad = QUAD_LETTER_TO_NUM[srcQuadLetter];
 		var destQuad = QUAD_LETTER_TO_NUM[destQuadLetter];
 		
-		var srcPos = parseInt(qmn.charAt(1)) - 1;
-		var destPos = parseInt(qmn.charAt(3)) - 1;
-		if (srcPos >= 0 && srcPos < QUAD_SPACES && destPos >= 0 && destPos < QUAD_SPACES) {
+		var srcSpot = parseInt(qmn.charAt(1)) - 1;
+		var destSpot = parseInt(qmn.charAt(3)) - 1;
+		if (srcSpot >= 0 && srcSpot < QUAD_SPACES && destSpot >= 0 && destSpot < QUAD_SPACES) {
+			var srcPos = (srcQuad * QUAD_SPACES) + srcSpot;
+			var destPos = (destQuad * QUAD_SPACES) + destSpot;
 			return {
-				s: (srcQuad * QUAD_SPACES) + srcPos,
-				d: (destQuad * QUAD_SPACES) + destPos,
+				sr: POS_TO_R[srcPos],
+				sc: POS_TO_C[srcPos],
+				dr: POS_TO_R[destPos],
+				dc: POS_TO_C[destPos],
 			};
 		}
 		
@@ -93,7 +97,7 @@ Board.prototype.getWin = function(prevTurn, prevMove) {
 	var dest = RC_TO_POS[prevMove.dr][prevMove.dc];	
 	var bb = this.bb;
 	if (BB_isWin(bb, turn, dest)) {
-		var player = (bb[turn] & NOT_SIGNAL);
+		var player = bb[turn];
 		for (var w = 0; w < WINS.length; w++) {
 			var win = WINS[w];
 			if ((player & win) == win) {				
