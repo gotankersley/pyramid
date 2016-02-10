@@ -1,5 +1,5 @@
 var Network = (function() { //Network namespace (Module pattern)
-	var URL = 'tools/network-test.js'; //For other domains add "Access-Control-Allow-Origin: *" to the header
+	var URL = '/pyramid/js/tools/network-test.js'; //For other domains add "Access-Control-Allow-Origin: *" to the header
 		
 	function getMove(board, onComplete) {
 		var queryString = '?turn=' + board.bb[TURN];
