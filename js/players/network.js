@@ -1,5 +1,5 @@
 var Network = (function() { //Network namespace (Module pattern)
-	var URL = '/pyramid/js/tools/network-test.js'; //For other domains add "Access-Control-Allow-Origin: *" to the header
+	var URL = 'http://localhost:5000/think/'; //For other domains add "Access-Control-Allow-Origin: *" to the header
 	
 	function getMove(board, onComplete) {		
 		if (!networkUrl) networkUrl = prompt('Enter a service URL', URL);
