@@ -22,6 +22,30 @@ Board.prototype.clone = function() {
 	return board;	
 }
 
+Board.prototype.getQBN = function() {
+	
+	var qbn = '';
+	var bb = this.bb;
+	var player1 = bb[P1];
+	var player2 = bb[P2];
+	//Output pins
+	for (var i = 0; i < 20; i++) {
+		var mask = POS_TO_MASK[i];
+		if (player1 & mask) qbn += BOARD_PLAYER1;
+		else if (player2 & mask) qbn += BOARD_PLAYER1;
+		else qbn += BOARD_EMPTY;
+	}
+	
+	//Output signal masks
+	qbn += (player1 & SIGNAL_MASK)? 1 : 0; //Player 1   
+	qbn += (player2 & SIGNAL_MASK)? 1 : 0;  //Player 2
+	
+	//Output turn
+	qbn += (bb[TURN] == P1)? BOARD_PLAYER1 : BOARD_PLAYER2; 
+	
+	return qbn;
+}
+
 Board.prototype.get = function(r, c) {	
 	var bb = this.bb;	
 	var mpos = RC_TO_MASK[r][c];

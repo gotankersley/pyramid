@@ -3,7 +3,8 @@ var Network = (function() { //Network namespace (Module pattern)
 	
 	function getMove(board, onComplete) {		
 		if (!networkUrl) networkUrl = prompt('Enter a service URL', URL);
-		var queryString = '?turn=' + board.bb[TURN];
+		//var queryString = '?turn=' + board.bb[TURN];
+		var queryString = board.getQBN();
 		var url = networkUrl + queryString;
 		ajax(url, function(data, status) {
 			//Expect a QMN String - Example: A5-B4  (dash is optional)
