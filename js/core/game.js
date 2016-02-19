@@ -25,24 +25,26 @@ function Game(uniqueId) {
 
 //Event methods
 Game.prototype.onMoveStart = function() {	
-	
-	if (this.players.getCurrent(this.board) != PLAYER_HUMAN) {			
+	var currentPlayer = this.players.getCurrent(this.board);
+	if (currentPlayer != PLAYER_HUMAN) { //Autoplay AI		
 		this.players.getMove(this.board.clone(), function(move) {			
 			if (move.sr == NO_MOVES_AVAILABLE) this.onNoMovesAvailable();
-			else game.onMove(move);				
+			else game.onMove(move, currentPlayer);				
 		});
 	}	
 }
 
-Game.prototype.onMove = function(move) {
-	var board = this.board;
-	if (board.isValid(move)) {
-		var prevTurn = this.board.turn;
-		this.board.makeMove(move); 				
-		
-		this.onMoveMade(move);
+Game.prototype.onMove = function(move, initiatingPlayer) {
+	if (initiatingPlayer == this.players.getCurrent(this.board)) {
+		var board = this.board;
+		if (board.isValid(move)) {
+			var prevTurn = this.board.turn;
+			this.board.makeMove(move); 				
+			
+			this.onMoveMade(move);
+		}
+		else if (initiatingPlayer != PLAYER_HUMAN) this.onInvalidMove(move);
 	}
-	else if (this.players.getCurrent(board) != PLAYER_HUMAN) this.onInvalidMove(move);
 }
 
 Game.prototype.onMoveMade = function(move) {

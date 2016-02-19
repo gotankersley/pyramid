@@ -158,18 +158,19 @@ Stage.prototype.confirmAnalytics = function(winner) {
 }			
 
 Stage.prototype.sendAnalytics = function(data, dlg, modal) {
-
+	dlg.innerHTML = 'Sending results...';
+	var delayTime = Date.now() + DELAY_ANALYTICS_THANKS;	
 	loadScriptFile(URL_FIREBASE_CDN, function() {
-		getIpAddress(function(ips) {
+		getIpAddress(function(ip) {
 			//Add IP address to data
-			data.ip = ips;			
+			data.ip = ip;			
 			//Send to database
 			var db = new Firebase(URL_FIREBASE_DATA);
 			db.push(data, function(err) {			
-				dlg.innerHTML = 'Results sent.';
+				
 				setTimeout(function() {
 					modal.close();	
-				}, DELAY_ANALYTICS_THANKS);
+				}, delayTime - Date.now());
 			});
 		});
 	});		
@@ -217,7 +218,7 @@ Stage.prototype.onMouseClick = function(e) {
 		var move = {sr:this.selR, sc:this.selC, dr:r, dc:c};
 		this.selR = -1;
 		this.selC = -1;
-		this.gameEvents['onMove'](move);
+		this.gameEvents['onMove'](move, PLAYER_HUMAN);
 		if (this.mode != MODE_WIN) this.mode = MODE_SELECT_PIN;			
 	}
 	
