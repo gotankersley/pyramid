@@ -15,7 +15,6 @@ var SIGNAL_SIZE = 15;
 var PATH_WIDTH = 8;
 var WIN_WIDTH = 3;
 
-var MESSAGE_FADE_MS = 1000;
 
 //Colors
 var COLOR_BOARD = '#e6caa6';
@@ -29,6 +28,17 @@ var COLOR_HOVER_PLAYER1 = '#b52f2f';
 var COLOR_HOVER_PLAYER2 = '#c0c0c0';	
 var COLOR_GRID = '#333';
 var COLOR_WIN = '#99d9ea';
+var COLOR_REPEAT = '#ff4242';	
+
+//URLS
+var URL_MODAL_CSS = 'css/modal.css';
+var URL_MODAL_LIB = 'js/lib/pico-modal-2.3.0.min.js';
+var URL_FIREBASE_CDN = 'https://cdn.firebase.com/js/client/2.2.1/firebase.js';
+var URL_FIREBASE_DATA = 'https://pyramidquadtria.firebaseio.com/data';
+
+//DELAYS
+var DELAY_ANALYTICS_ASK = 1500; //MS
+var DELAY_ANALYTICS_THANKS = 650; //MS
 
 //Enums
 var MODE_SELECT_PIN = 0;
@@ -37,7 +47,7 @@ var MODE_WIN = 2;
 
 //Globals
 var menu;
-//TODO messages, info (fading into obscurity)
+
 
 //Class Stage - Used for drawing
 function Stage(board) {
@@ -52,7 +62,8 @@ function Stage(board) {
 	this.selC = -1;
 	this.gameEvents = {};
 	this.mode = MODE_SELECT_PIN;
-	this.winInfo;
+	this.winTriangle;
+	this.repeat = null;
 	this.message;
 	this.messageFade;
 	
@@ -70,6 +81,7 @@ function Stage(board) {
 	//Event callbacks
 	canvas.addEventListener('click', this.onMouseClick.bind(this), false);
 	canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false);		
+	window.addEventListener('keydown', this.onKeyDown.bind(this), false);		
 	
 	//Start rendering
 	this.draw();
@@ -81,14 +93,100 @@ Stage.prototype.addGameEvent = function(name, callback) {
 	this.gameEvents[name] = callback;
 }
 
-Stage.prototype.setMessage = function(messageText, fade) {
-	this.message = messageText;
-	//this.messageFade = fade;
+
+Stage.prototype.onWin = function(winner, winningHumanVsAI) {
+	this.winTriangle = this.board.getWinTriangle(); //Winning triangle points in R,C 			
+	this.mode = MODE_WIN;
+	
+	var self = this;
+	if (winningHumanVsAI && menu.sendAnalytics) {
+		if (!typeof(picoModal) != 'undefined') { //Load the modal library
+			var delayTime = Date.now() + DELAY_ANALYTICS_ASK;				
+			loadStyleFile(URL_MODAL_CSS, function() {
+				loadScriptFile(URL_MODAL_LIB, function() {					
+					setTimeout(self.confirmAnalytics.bind(self, winner), delayTime - Date.now());
+				});
+			});
+		}
+		else setTimeout(self.confirmAnalytics.bind(self, winner), DELAY_ANALYTICS_ASK);
+	}
+	
 }
 
-Stage.prototype.onWin = function(win) {
-	this.mode = MODE_WIN;	
-	this.winInfo = win;
+Stage.prototype.confirmAnalytics = function(winner) {
+	var self = this;
+	var content = 		
+		'<h2>Send game data for analysis?</h2><br/>' +
+		'<div>' +
+		'<input class="name" type="text" placeholder="Optional name"/><br/>' +
+		'<textarea class="comment" placeholder="Optional comment"></textarea><br/>' +
+		'</div>' +
+		'<div class="no-repeat-container"><label>Don\'t ask again <input type="checkbox" class="no-repeat" name="no-repeat" /></label></div>' +
+		'<div>' +
+		'<div class="button ok" style="">Ok</div>' +
+		'<div class="button cancel">Cancel</div>' +
+		'</div>';
+	picoModal({
+		content: content,
+		overlayStyles: {},		
+		modalClass: 'modal',
+		modalStyles: {top:'200px'}
+	})
+	.afterCreate(function(modal){
+		var dlg = modal.modalElem();
+		var name = dlg.getElementsByClassName('name')[0];
+		var comment = dlg.getElementsByClassName('comment')[0];
+		var noRepeat = dlg.getElementsByClassName('no-repeat')[0];
+		
+		dlg.getElementsByClassName('cancel')[0].addEventListener('click', modal.close);
+		dlg.getElementsByClassName('ok')[0].addEventListener('click', function() { 			
+			if (noRepeat.checked) localStorage.setItem('NO_ANALYTICS', '1');
+			var data = {
+				winner:winner,
+				name:name.value,
+				comment:comment.value,
+				p1:game.players.player1,
+				p2:game.players.player2,
+				time:Date.now(),
+				log:game.history,
+			}	
+			self.sendAnalytics(data, dlg, modal);						
+		});			
+	})
+	.afterClose(function (modal) { modal.destroy(); })
+	.show();
+}			
+
+Stage.prototype.sendAnalytics = function(data, dlg, modal) {
+
+	loadScriptFile(URL_FIREBASE_CDN, function() {
+		getIpAddress(function(ips) {
+			//Add IP address to data
+			data.ip = ips;			
+			//Send to database
+			var db = new Firebase(URL_FIREBASE_DATA);
+			db.push(data, function(err) {			
+				dlg.innerHTML = 'Results sent.';
+				setTimeout(function() {
+					modal.close();	
+				}, DELAY_ANALYTICS_THANKS);
+			});
+		});
+	});		
+}
+
+
+Stage.prototype.onKeyDown = function(e) {	
+	if (e.ctrlKey) {
+		//Undo move with Ctrl + Z
+		if (e.keyCode == 90 ) { //90 is the z key
+			this.gameEvents['onUndoMove']();
+		}
+		//Redo move with Ctrl + Y
+		else if (e.keyCode == 89 ) { //88 is the y key
+			this.gameEvents['onRedoMove']();
+		}
+	}	
 }
 
 Stage.prototype.onMouseMove = function(e) {	
@@ -127,6 +225,7 @@ Stage.prototype.onMouseClick = function(e) {
 
 }
 
+
 //Drawing
 Stage.prototype.draw = function(time) { //Top-level drawing function	
 	
@@ -143,7 +242,7 @@ Stage.prototype.draw = function(time) { //Top-level drawing function
 		
 	//Draw holes and pins
 	var board = this.board;
-	var turn = board.getTurn();
+	var turn = board.turn;
 	for (var r = 0; r < BOARD_COUNT; r++) {
 		for (var c = 0; c < BOARD_COUNT; c++) {
 			if (board.VALID_SQUARES[r][c]) { //Not all the square in the grid a valid positions
@@ -165,13 +264,13 @@ Stage.prototype.draw = function(time) { //Top-level drawing function
 		
 	
 	//Draw win
-	if (this.mode == MODE_WIN) this.drawWin();
+	if (this.mode == MODE_WIN) this.drawWin(turn);
 	
 	//Draw turn
 	else this.drawTurn(turn);
 	
-	//Draw message
-	//if (this.message) this.drawMessage(time);
+	//Draw repeat message
+	if (this.repeat !== null) this.drawRepeat();
 	
 	requestAnimationFrame(this.draw.bind(this)); //Repaint
 	
@@ -334,7 +433,7 @@ Stage.prototype.drawWin = function(turn) {
 	var ctx = this.ctx;
 	ctx.strokeStyle = COLOR_WIN;
 	ctx.lineWidth = WIN_WIDTH;
-	var win = this.winInfo;
+	var win = this.winTriangle;
 	var ax = (win[0].c * GRID_UNIT) + HALF_GRID;
 	var ay = (win[0].r * GRID_UNIT) + HALF_GRID;
 	
@@ -350,9 +449,15 @@ Stage.prototype.drawWin = function(turn) {
 	drawLine(ctx, cx, cy, ax, ay);
 	
 	//Message
-	var turnText = (turn == BOARD_PLAYER1)? 'Player 2 Wins!' : 'Player 1 Wins!';
+	var turnText = (turn == BOARD_PLAYER1)? 'Player 1 Wins!' : 'Player 2 Wins!';
 	this.ctx.fillStyle = COLOR_PATH;
 	this.ctx.fillText(turnText, HALF_GRID, GRID_SIZE + 15);
+}
+
+Stage.prototype.drawRepeat = function() {	
+	this.ctx.fillStyle = COLOR_REPEAT;
+	var text = (this.repeat === 0)? 'Repeat' : 'Repeat (' + this.repeat + ')';
+	this.ctx.fillText(text, GRID_SIZE - GRID_UNIT - 15, GRID_SIZE + 15);
 }
 
 //End class Stage

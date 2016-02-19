@@ -46,25 +46,30 @@ var QUAD_SPACES = 5;
 
 var P1 = 0;
 var P2 = 1;
-var TURN = 2; //Turn index
 
 //Masks
 var SIGNAL_MASK = 0x100000;
-//var NOT_SIGNAL = 0xfffff; //JS numbers are signed so bitwise NOT's can have unwanted side-effects 
+var NOT_SIGNAL = 0xfffff; //JS numbers are signed so bitwise NOT's can have unwanted side-effects 
 var THREE_NO_WIN1 = 0x15;
 var THREE_NO_WIN2 = 0xe;
+var BOARD_MASK = 0x1fffff;
 
 var INITIAL_P1 = 0x1f;
 var INITIAL_P2 = 0xf8000;
 
 var HOME_QUAD_MASKS = [0x1f, 0xf8000]; //By player
+var HOME_QUAD_MASKS_BY_SIGNAL = [[0x1f, 0], [0xf8000,0]]; //By [Player][Signal]
+var HOME_QUAD_START = [ [1,0],[0,0] ]; //[Player][Signal] - For iterating through quads and ignoring home if signal not set
+var HOME_QUAD_END = [ [4,4],[3,4] ]; //[Player][Signal]
 var QUAD_MASKS = [0x1f, 0x3e0, 0x7c00, 0xf8000]; //By quad pos
+var CENTER_MASKS = [0x10, 0x100, 0x800, 0x8000]; //TL (4), TR (8), BL(11), BR(15)
+
 
 //Moves
 var AVAIL_MOVES = [0xe,0x35,0x1b,0x415,0x890e,0x1c2,0x2a0,0x360,0x8ab0,0x101c0,0x3808,0xd510,0x6c00,0x5400,0x43800,0x70910,0xa8200,0xd8000,0xac000,0x70000]; //By position
 
 //Wins
-var QUAD_PIN_COUNT = [0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5];
+var QUAD_PIN_COUNT = [0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5]; //Only for Q0
 var WINS = [ //No signal
 	0x13,0x1a,0x19,0xb,0x7,0x16,0x1c,0xd, //Q0
 	0x260,0x340,0x320,0x160,0xe0,0x2c0,0x380,0x1a0, //Q1
@@ -75,26 +80,124 @@ var NON_HOME_QUAD_WIN = [ //By [player, pos]
 	[false,false,false,false,false,true,true,true,true,true,true,true,true,true,true,true,true,true,true,true], //Player 1
 	[true,true,true,true,true,true,true,true,true,true,true,true,true,true,true,false,false,false,false,false] //Player 2
 ];
+var HI_TURN = [0, 0x200000];
 
 //Struct BB - Obviously JS doesn't have actual structs. But we are using a similar concept here, avoiding the use of
 //classes in order to reduce the additional overhead of prototypes.  (NOTE: I have no idea how big a difference this makes)
 function BB_new() {	
-	var bb = new Uint32Array([
-		INITIAL_P1,	//p1
-		INITIAL_P2,	//p2				
-		P1,	//turn 
-	]);
+	var bb = [
+		INITIAL_P1,	//player 1 bitboard
+		INITIAL_P2,	//player 2 bitboard						
+	];
 	return bb;
 }
 
 
-function BB_getScore(bb) { //Static evaluation function
-	return 0;
+function BB_deriveMove(original, changed) {
+	//Derive move made by looking at changed board state
+	//var original = bb[bb[TURN]] & NOT_SIGNAL;
+	original &= NOT_SIGNAL;
+	changed &= NOT_SIGNAL;
+	var combined = original | changed;
+	var src = MASK_TO_POS[changed ^ combined];
+	var dest = MASK_TO_POS[original ^ combined];
+	return {
+		sr:POS_TO_R[src],
+		sc:POS_TO_C[src],
+		dr:POS_TO_R[dest],
+		dc:POS_TO_C[dest]
+	}
 }
 
-function BB_isWin(bb, turn, destPos) {		
-	var quadPos = Math.floor(destPos / QUAD_SPACES);
-	var player = bb[turn];	
+
+function BB_getMoves(bb, turn) {	
+	var player = bb[turn];
+	var opp = bb[+(!turn)]; //+ unary operator to convert bool true value to number
+	var pins = bitScan(player);
+	var moves = {};
+	for (var i = 0; i < pins.length; i++) {
+		var p = pins[i];
+		var avail = AVAIL_MOVES[p];
+		avail &= avail ^ (opp | player); //Can't move to a spot if there is a piece already there	
+		moves[p] = avail;
+	}
+	return moves;
+}
+
+
+//TODO: optimize to return at first win?
+function BB_getMoveBoards(player, opp, turn) { 	
+	//This returns available moves as board states after the move
+	//Note the return is is in the form: [ [All dests][Board][destPos][Board][destPos]... ]
+	var boards = [0]; //Zero index for [ALL DESTS]	
+	var bothPlayers = opp | player; 
+	var pins = player;
+	var allDests = 0;
+	while (pins) { //Pins bitscan loop
+		var minBit = pins & -pins; // isolate least significant bit
+		var srcPos = MASK_TO_POS[minBit>>>0];		
+		var avail = AVAIL_MOVES[srcPos];
+		avail &= avail ^ bothPlayers; //Can't move to a spot if there is a piece already there	
+		
+		if (avail) { //Ignore pin in there are no available moves 
+			allDests |= avail;
+			while (avail) { //Avail bitscan loop
+				var minBit2 = avail & -avail; // isolate least significant bit
+				var destPos = MASK_TO_POS[minBit2>>>0];
+				var moved = BB_move(player, turn, srcPos, destPos);
+				boards.push(moved);
+				boards.push(destPos);
+				avail &= avail-1;
+			}//end avail bitscan loop
+		}
+		pins &= pins-1;
+	}//End pins bitscan loop
+	boards[0] = allDests;
+	return boards;
+}
+
+
+function BB_heuristicScoreSide(player, turn) {	
+	var score = 0;
+	var signal = (player & SIGNAL_MASK) >>> 20; //Sure, we COULD use an if here...
+		
+	//Loop through quads (ignore home if signal not set)	
+	for (var q = HOME_QUAD_START[turn][signal]; q < HOME_QUAD_END[turn][signal]; q++) {
+		var quad = (player & QUAD_MASKS[q]) >>> (q * QUAD_SPACES); //Shift all quads to first quad spot
+		
+		//Adjacent counts
+		score += (QUAD_PIN_COUNT[quad]) << 1;  //This should pick up diagonal slant tri's (e.g 0x15, and 0xe)
+		
+		//All the Q0 wins - 0x13,0x1a,0x19,0xb,0x7,0x16,0x1c,0xd
+		score += (QUAD_PIN_COUNT[(quad & 0x13)]) << 1; //Shift by 1 to weight the count so that more adjacents are worth more
+		score += (QUAD_PIN_COUNT[(quad & 0x1a)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0x19)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0xb)]) << 1;
+		
+		score += (QUAD_PIN_COUNT[(quad & 0x7)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0x16)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0x1c)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0xd)]) << 1;
+				
+	}
+	
+	//Center control rewards
+	var centerCount = 0;
+	if (player & CENTER_MASKS[0]) centerCount++;
+	else if (player & CENTER_MASKS[1]) centerCount++;
+	else if (player & CENTER_MASKS[2]) centerCount++;
+	else if (player & CENTER_MASKS[3]) centerCount++;
+	score += Math.min(3, centerCount);
+		
+	//Penalty for being stuck in home quad
+	var homePins = player & HOME_QUAD_MASKS_BY_SIGNAL[turn][signal];
+	if (turn == P1)	score -= QUAD_PIN_COUNT[homePins];
+	else score -= (2 * QUAD_PIN_COUNT[homePins>>>15]);
+	return score;
+}
+
+function BB_isWin(player, turn, destPos) {		
+	var quadPos = Math.floor(destPos / QUAD_SPACES);	
 	var quad = (player & QUAD_MASKS[quadPos]) >>> (quadPos * QUAD_SPACES); //Shift quad to first spot	
 	var count = QUAD_PIN_COUNT[quad];
 	if (count >= 3) { 		
@@ -112,38 +215,49 @@ function BB_isWin(bb, turn, destPos) {
 	return false;
 }
 
-
-function BB_getMoves(bb) {
-	var turn = bb[TURN];
-	var player = bb[turn];
-	var opp = bb[+(!turn)]; //+ unary operator to convert bool true value to number
-	var pins = bitScan(player);
-	var moves = {};
-	for (var i = 0; i < pins.length; i++) {
-		var p = pins[i];
-		var avail = AVAIL_MOVES[p];
-		avail &= avail ^ (opp | player); //Can't move to a spot if there is a piece already there	
-		moves[p] = avail;
-	}
-	return moves;
-}
-
-//TODO: Get all non-loss moves?
-
-function BB_makeMove(bb, srcPos, destPos) {
-	//This does not verify that the move is legal
-	var turn = bb[TURN];
-	var player = bb[turn];
+function BB_move(player, turn, srcPos, destPos) {
+	//This does NOT verify that the move is legal	
 	player ^= POS_TO_MASK[srcPos]; //Remove source
 	player |= POS_TO_MASK[destPos]; //Add to dest
-	if ((player & HOME_QUAD_MASKS[turn]) === 0) player |= SIGNAL_MASK; //Home quad clear - flip signal
-	bb[turn] = player;
-	bb[TURN] = !bb[TURN]; //Change turns	
+	
+	//Flip the signal if the home quad is clear
+	if ((player & HOME_QUAD_MASKS[turn]) === 0) player |= SIGNAL_MASK; 
+	return player;
+}
+
+function BB_toUniqueId(bb, turn) { //Takes a BB because it is not relative
+	//Convert both bitboards to single large number (43 bits)
+	//[Turn][P2][P1]	
+	var hi = bb[1] | HI_TURN[turn];
+	hi = hi*Math.pow(2,21); //Left-shift hi bits 21 places
+	return hi + bb[0];
+}
+
+function BB_fromUniqueId(id) {
+	//Reverse unique id
+	//[Turn][P2][P1]
+	var hi = id/Math.pow(2,21); //Right-shift hi bits 21 places
+	var p2 = hi & BOARD_MASK;
+	var p1 = id & BOARD_MASK;
+	var turn = (hi & HI_TURN[1])? 1 : 0;	
+	return [p1,p2, turn]; //Returns a tripple, not a tupple
 }
 
 
+function BB_url(id) { //id may be either single bitboard, or uniqueId
+	var BASE_URL = 'http://gotankersley.github.io/pyramid/';
+	
+	//Figure out id type
+	if (id > BOARD_MASK) { //UniqueId
+		return BASE_URL + '?id=' + id;
+	}
+	else { //Bitboard
+		return BASE_URL + 'bit-tool.html?bb=' + id;	
+	} 	
+}
+
 function BB_toString(bb) {
-	return '0x' + bb[P1].toString(16) + ', 0x' + bb[P2].toString(16) + ', Turn:' + bb[TURN];
+	return '0x' + bb[P1].toString(16) + ', 0x' + bb[P2].toString(16);
 }
 
 //End struct BB

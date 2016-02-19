@@ -1,9 +1,9 @@
+var networkUrl = null;
 var Network = (function() { //Network namespace (Module pattern)
 	var URL = 'http://localhost:5000/think/'; //For other domains add "Access-Control-Allow-Origin: *" to the header
 	
 	function getMove(board, onComplete) {		
-		if (!networkUrl) networkUrl = prompt('Enter a service URL', URL);
-		//var queryString = '?turn=' + board.bb[TURN];
+		if (!networkUrl) networkUrl = prompt('Enter a service URL', URL);		
 		var queryString = board.getQBN();
 		var url = networkUrl + queryString;
 		ajax(url, function(data, status) {
@@ -30,4 +30,3 @@ var Network = (function() { //Network namespace (Module pattern)
 	return {getMove:getMove};
 
 })(); //End Network namespace
-var networkUrl = null;

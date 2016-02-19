@@ -1,4 +1,0 @@
-//Class RandomPlayer
-function RandomPlayer() {
-
-}
