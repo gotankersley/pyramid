@@ -202,8 +202,8 @@ function BB_isWin(player, turn, destPos) {
 	var count = QUAD_PIN_COUNT[quad];
 	if (count >= 3) { 		
 		if (count == 3) { //Verify that the three forms a valid winning triangle
-			if ((player & THREE_NO_WIN1) != THREE_NO_WIN1 &&
-				(player & THREE_NO_WIN2) != THREE_NO_WIN2) {
+			if ((quad & THREE_NO_WIN1) != THREE_NO_WIN1 &&
+				(quad & THREE_NO_WIN2) != THREE_NO_WIN2) {
 				if (player & SIGNAL_MASK) return true; //Home quad cleared, can win anywhere
 				else return NON_HOME_QUAD_WIN[turn][destPos]; //Check to make sure the win isn't in the home quad
 			}
