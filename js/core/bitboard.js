@@ -193,6 +193,16 @@ function BB_heuristicScoreSide(player, turn) {
 	var homePins = player & HOME_QUAD_MASKS_BY_SIGNAL[turn][signal];
 	if (turn == P1)	score -= QUAD_PIN_COUNT[homePins];
 	else score -= (2 * QUAD_PIN_COUNT[homePins>>>15]);
+	
+	//Moves available 
+	var dests = 0;
+	while (player) {
+        var minBit = player & -player; // isolate least significant bit
+        var pin = MASK_TO_POS[minBit>>>0];
+		player &= player-1;
+		dests |= AVAIL_MOVES[pin];
+	}	
+	score += bitCount(dests);
 	return score;
 }
 
