@@ -9,6 +9,7 @@ var Network = (function() { //Network namespace (Module pattern)
 		ajax(url, function(data, status) {
 			//Expect a QMN String - Example: A5-B4  (dash is optional)
 			var qmnStr = data.qmn;
+			if (data.hasOwnProperty('log')) console.log(data.log); //Optional argument to log info 
 			var move = board.qmnToRC(qmnStr);			
 			onComplete(move);			
 		});
