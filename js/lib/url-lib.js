@@ -47,7 +47,7 @@ function loadStyleFile(url, callback) {
 //http://youmightnotneedjquery.com/
 function getIpAddress(callback) {
 	var request = new XMLHttpRequest();
-	request.open('GET', 'http://freegeoip.net/json/', true);
+	request.open('GET', 'https://freegeoip.net/json/', true);
 
 	request.onload = function() {
 		if (request.status >= 200 && request.status < 400) { // Success!		

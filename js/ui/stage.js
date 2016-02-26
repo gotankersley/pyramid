@@ -161,9 +161,9 @@ Stage.prototype.sendAnalytics = function(data, dlg, modal) {
 	dlg.innerHTML = 'Sending results...';
 	var delayTime = Date.now() + DELAY_ANALYTICS_THANKS;	
 	loadScriptFile(URL_FIREBASE_CDN, function() {
-		getIpAddress(function(ip) {
+		//getIpAddress(function(ip) {
 			//Add IP address to data
-			data.ip = ip;			
+			//data.ip = ip;			
 			//Send to database
 			var db = new Firebase(URL_FIREBASE_DATA);
 			db.push(data, function(err) {			
@@ -172,7 +172,7 @@ Stage.prototype.sendAnalytics = function(data, dlg, modal) {
 					modal.close();	
 				}, delayTime - Date.now());
 			});
-		});
+		//});
 	});		
 }
 
