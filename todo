@@ -1,0 +1,73 @@
+All the ings:
+---------
+Options Menu:
+- Display
+-> themes
+
+- Animation
+- AI
+-> Max time
+-> suggest a move
+-> scores
+-Misc?
+-> send results
+->
+
+-----
+AI player names
+Move DB
+Send analysis on demand
+links
+scale board
+Quad centers analysis
+arena tournament tool
+cleanup AB / etc... code
+*thinking threads
+toast messages
+suggest a move
+move sorting
+pattern lang?
+score logging in the console
+signal flash when enabled.
+race wins
+losing positions
+
+Cleanup / Refactor:
+- docs (diagrams, research)
+- Use side instead of turn?
+- Network player local storage
+
+Features:
+- Drag n' drop
+- Move log
+- flip board so p1 is at bottom?
+
+FX:
+- 3D board (Pyramid effect), camels
+- Themes
+
+Testing:
+- Complete game
+- Invalid moves
+- Signal flags
+
+AI:
+- Move sorting for A/B
+- score map
+- heuristic player
+- MC worker threads
+- incremental scoring?
+- Biggerman test (yield)
+- Minmax
+
+
+#Research
+- Avg branching factor
+- Avg game length
+- 1st player advantage
+- Common moves
+
+#AI techniques:
+- Fuzzy pattern identification (features)
+- NN learning (Deep?)
+- GA training for stat eval fn

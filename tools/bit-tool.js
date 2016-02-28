@@ -6,6 +6,11 @@ $(function() {
 		$(this).toggleClass('active');	
 		calculate();
 	});
+	var bb = QueryString('bb');
+	if (bb) {
+		$('#inputBoard').val(bb);
+		setBoard();
+	}
 });
 
 function onKeyUp(e) {

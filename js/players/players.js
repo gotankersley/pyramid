@@ -4,6 +4,7 @@ var PLAYER_AB = 2;
 var PLAYER_HEURISTIC = 3;
 var PLAYER_NETWORK = 4;
 var PLAYER_MC = 5;
+var PLAYER_ALPHA_CARLO = 6;
 
 var INVALID = -1;
 var NO_MOVES_AVAILABLE = -2;
@@ -45,7 +46,10 @@ Players.prototype.getMove = function(board, onPlayed) {
 		else if (player == PLAYER_AB) move = AB.getMove(board);		
 		
 		//MC
-		else if (player == PLAYER_MC) move = MC.getMove(board);		
+		else if (player == PLAYER_MC) move = MC.getMove(board);	
+		
+		//Alpha-Carlo
+		else if (player == PLAYER_ALPHA_CARLO) move = AlphaCarlo.getMove(board);		
 		
 		//Invalid
 		else move = {sr:INVALID, sc:INVALID};

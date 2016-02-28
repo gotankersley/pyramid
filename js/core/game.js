@@ -14,41 +14,39 @@ function Game(uniqueId) {
 	this.undoHistory = [];
 	
 	this.players = new Players(PLAYER_HUMAN, PLAYER_HUMAN);
-	
-	//Used for drawing
-	this.stage = new Stage(this.board); 
-	this.stage.addGameEvent('onMove', this.onMove.bind(this));		
-	this.stage.addGameEvent('onUndoMove', this.onUndoMove.bind(this));		
-	this.stage.addGameEvent('onRedoMove', this.onRedoMove.bind(this));		
+		
+	this.gameEvents = {}; //Callbacks to update UI
 }
 
 
 //Event methods
-Game.prototype.onMoveStart = function() {	
+Game.prototype.addEventListener = function(name, callback) {	
+	this.gameEvents[name] = callback;
+}
+
+Game.prototype.startMove = function() {		
+	var self = this;
 	var currentPlayer = this.players.getCurrent(this.board);
 	if (currentPlayer != PLAYER_HUMAN) { //Autoplay AI		
 		this.players.getMove(this.board.clone(), function(move) {			
-			if (move.sr == NO_MOVES_AVAILABLE) this.onNoMovesAvailable();
-			else game.onMove(move, currentPlayer);				
+			if (move.sr == NO_MOVES_AVAILABLE) self.gameEvents['noMovesAvailable']();
+			else self.gameEvents['move'](move, currentPlayer);
 		});
 	}	
 }
 
-Game.prototype.onMove = function(move, initiatingPlayer) {
-	if (initiatingPlayer == this.players.getCurrent(this.board)) {
-		var board = this.board;
-		if (board.isValid(move)) {
-			var prevTurn = this.board.turn;
-			this.board.makeMove(move); 				
-			
-			this.onMoveMade(move);
-		}
-		else if (initiatingPlayer != PLAYER_HUMAN) this.onInvalidMove(move);
+Game.prototype.isValidMove = function(move, initiatingPlayer) {
+	if (initiatingPlayer == this.players.getCurrent(this.board)) { 		
+		if (this.board.isValid(move)) return true;			
 	}
+	return false;
 }
 
-Game.prototype.onMoveMade = function(move) {
+
+Game.prototype.makeMove = function(move) {
 	var board = this.board;	
+	var prevTurn = board.turn;				
+	board.makeMove(move); 
 	
 	//Game over
 	if (board.isGameOver(move)) {
@@ -59,17 +57,12 @@ Game.prototype.onMoveMade = function(move) {
 	}
 		
 	//In play
-	else {
+	else {			
 		board.changeTurn(); //Change the turn
 		
 		//History and Memory
 		this.logCurrentState(board);
-	
-		//Get the next move if the player is not human
-		if (this.players.getCurrent(board) != PLAYER_HUMAN) { 
-			//Give draw enough time to display board before AI users try to play again				
-			setTimeout(this.onMoveStart.bind(this), menu.moveDelay); 
-		}
+		this.gameEvents['moveMade']();
 	}
 	
 }
@@ -86,38 +79,23 @@ Game.prototype.onGameOver = function(winner) {
 	}	
 
 	//Draw the win and other hoopla...
-	this.stage.onWin(winner, winningHumanVsAI);
+	this.gameEvents['win'](winner, winningHumanVsAI);
 		
 }
 
-Game.prototype.onInvalidMove = function(move) {	
-	console.log('INVALID move attempted:', move);
-	alert('The player has attempted to make an invalid move - see console for more info');
-}
-
-Game.prototype.onNoMovesAvailable = function(move) {
-	alert('Player has no moves available');
-}
-
-Game.prototype.onRepeat = function(board) {	
-	if (this.stage.repeat === null) this.stage.repeat = 0;
-	else this.stage.repeat++;
-}
-
-Game.prototype.onUndoMove = function() {
-	if (this.history.length > 1) {	
-		this.stage.repeat = null;
+Game.prototype.undoMove = function() {
+	if (this.history.length > 1) {			
 		var oldId = this.history.pop();
 		this.undoHistory.push(oldId);
 		delete this.memory[oldId];
 		var newId = this.history.slice(-1);
 		this.board = new Board(newId);
-		this.stage.mode = MODE_SELECT_PIN;
-		this.stage.board = this.board;		
+		return true;		
 	}
+	return false;
 }
 
-Game.prototype.onRedoMove = function() {	
+Game.prototype.redoMove = function() {	
 	if (this.undoHistory.length > 0) {	
 		var currentBoard = this.board.bb[this.board.turn];
 		var savedId = this.undoHistory.pop();
@@ -125,13 +103,14 @@ Game.prototype.onRedoMove = function() {
 		this.memory[savedId] = true;
 		this.board = new Board(savedId);		
 		this.board.changeTurn();		
-		var move = BB_deriveMove(currentBoard, this.board.bb[this.board.turn]);
-		this.stage.board = this.board;		
+		var move = BB_deriveMove(currentBoard, this.board.bb[this.board.turn]);		
 		
 		//Check for Game over		
 		if (this.board.isGameOver(move)) this.onGameOver(this.board.turn);		
 		else this.board.changeTurn();
+		return true;
 	}
+	return false;
 }
 
 //Helper function keep track of game history
@@ -139,14 +118,17 @@ Game.prototype.logCurrentState = function(board) {
 	var uniqueId = board.getUniqueId();
 	this.history.push(uniqueId);
 	if (this.memory[uniqueId]) {
-		if (this.history.slice(-GAME_REPEAT_WINDOW).indexOf(uniqueId) >= 0) this.onRepeat(board);
+		if (this.history.slice(-GAME_REPEAT_WINDOW).indexOf(uniqueId) >= 0) this.gameEvents['repeat']();
 	}
-	else {
-		this.stage.repeat = null;
-		this.memory[uniqueId] = true;
-	}
+	else this.memory[uniqueId] = true;
+}
+
+Game.prototype.load = function(gameLog) {
+	this.undoHistory = gameLog.reverse().slice(0, -1);
+	for (var i = 0; i < gameLog.length; i++) {
+		var id = gameLog[i];		
+	}	
 }
 //end class Game
 
-	
 

@@ -187,8 +187,8 @@ function BB_heuristicScoreSide(player, turn) {
 	else if (player & CENTER_MASKS[1]) centerCount++;
 	else if (player & CENTER_MASKS[2]) centerCount++;
 	else if (player & CENTER_MASKS[3]) centerCount++;
-	score += Math.min(3, centerCount);
-		
+	score += Math.min(3, centerCount);		
+	
 	//Penalty for being stuck in home quad
 	var homePins = player & HOME_QUAD_MASKS_BY_SIGNAL[turn][signal];
 	if (turn == P1)	score -= QUAD_PIN_COUNT[homePins];
@@ -203,8 +203,10 @@ function BB_heuristicScoreSide(player, turn) {
 		dests |= AVAIL_MOVES[pin];
 	}	
 	score += bitCount(dests);
+	
 	return score;
 }
+
 
 function BB_isWin(player, turn, destPos) {		
 	var quadPos = Math.floor(destPos / QUAD_SPACES);	
@@ -255,7 +257,7 @@ function BB_fromUniqueId(id) {
 
 
 function BB_url(id) { //id may be either single bitboard, or uniqueId
-	var BASE_URL = 'http://gotankersley.github.io/pyramid/';
+	var BASE_URL = 'http://localhost/';
 	
 	//Figure out id type
 	if (id > BOARD_MASK) { //UniqueId

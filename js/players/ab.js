@@ -1,7 +1,7 @@
 var AB = (function() { //AB namespace (Module pattern)
 	var INFINITY = 1000000;	
 	var MAX_DEPTH = 8;
-	var DEBUG = false;
+	var DEBUG = true;
 	
 	var bestMoveAtDepth = []; //The moved board state
 	var bestScoreAtDepth = [];
@@ -22,7 +22,7 @@ var AB = (function() { //AB namespace (Module pattern)
 		//Alpha beta driver		
 		var bestScore = negamax(player, opp, turn, -INFINITY, INFINITY, 0);				
 		if (bestScore == -INFINITY) { //Probably gonna lose		
-			if (DEBUG) console.log('AB: Inevitable loss');
+			if (DEBUG) console.log('Timid: Inevitable loss');
 			var moves = board.getMoves();			
 			return moves[Math.floor(Math.random() * moves.length)]; //Make a random move - hope springeth eternal...			
 		}
@@ -32,15 +32,15 @@ var AB = (function() { //AB namespace (Module pattern)
 				var newBB = [0,0];
 				newBB[turn] = player;
 				newBB[oppTurn] = opp;
-				console.log('AB Plan:', bestScore);
-				for (var m = 0; m < MAX_DEPTH; m++) {
-					var moved = bestMoveAtDepth[m];
-					if (moved === undefined || moved == INVALID || !moved) break;
-					newBB[turn] = moved;	
-					turn = +(!turn);
-					var uniqueId = BB_toUniqueId(newBB, turn);
-					console.log(BB_url(uniqueId), bestScoreAtDepth[m]);
-				}
+				console.log('Timid:', bestScore);
+				//for (var m = 0; m < MAX_DEPTH; m++) {
+				//	var moved = bestMoveAtDepth[m];
+				//	if (moved === undefined || moved == INVALID || !moved) break;
+				//	newBB[turn] = moved;	
+				//	turn = +(!turn);
+				//	var uniqueId = BB_toUniqueId(newBB, turn);
+				//	console.log(BB_url(uniqueId), bestScoreAtDepth[m]);
+				//}
 			}
 			//END-DEBUG
 			var moved = bestMoveAtDepth[0];						

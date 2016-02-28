@@ -9,23 +9,28 @@
 	</head>
 	<body>	
 		<canvas id="main-canvas" width="600" height="700"></canvas>	
-		<script src="js/lib/dat.gui.min.js"></script>
-		<script src="js/lib/draw-lib.js?v=2"></script>
-		<script src="js/lib/bit-lib.js?v=2"></script>
-		<script src="js/lib/url-lib.js?v=2"></script>
-		<script src="js/core/bitboard.js?v=2"></script>
-		<script src="js/core/board.js?v=2"></script>
-		<script src="js/players/network.js?v=2"></script>
-		<script src="js/players/ab.js?v=2"></script>				
-		<script src="js/players/players.js?v=2"></script>
-		<script src="js/ui/menu.js?v=2"></script>
-		<script src="js/ui/stage.js?v=2"></script>				
-		<script src="js/core/game.js?v=2"></script>				
+		<script src="js/lib/dat.gui.min.js?v=3"></script>
+		<script src="js/lib/draw-lib.js?v=3"></script>
+		<script src="js/lib/bit-lib.js?v=3"></script>
+		<script src="js/lib/url-lib.js?v=3"></script>
+		<script src="js/lib/tween.js?v=3"></script>
+		<script src="js/core/bitboard.js?v=3"></script>
+		<script src="js/core/board.js?v=3"></script>
+		<script src="js/players/network.js?v=3"></script>
+		<script src="js/players/mc.js?v=3"></script>						
+		<script src="js/players/ab.js?v=3"></script>				
+		<script src="js/players/players.js?v=3"></script>
+		<script src="js/ui/analytics.js?v=3"></script>
+		<script src="js/ui/themes.js?v=3"></script>				
+		<script src="js/ui/menu.js?v=3"></script>
+		<script src="js/ui/stage.js?v=3"></script>				
+		<script src="js/core/game.js?v=3"></script>				
 		
 		<!-- Init -->
 		<script>
 		var id = QueryString('id');
 		var game = new Game(id);
+		Stage.init(game); 
 		</script>
 		<link rel="stylesheet" href="css/dat-gui-light.css"/><!-- needs to be last -->
 		
