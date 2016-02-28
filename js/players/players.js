@@ -5,6 +5,8 @@ var PLAYER_HEURISTIC = 3;
 var PLAYER_NETWORK = 4;
 var PLAYER_MC = 5;
 var PLAYER_ALPHA_CARLO = 6;
+var PLAYER_INDY = 7;
+
 
 var INVALID = -1;
 var NO_MOVES_AVAILABLE = -2;
@@ -32,6 +34,7 @@ Players.prototype.getMove = function(board, onPlayed) {
 	
 	//Network (Async)
 	if (player == PLAYER_NETWORK) Network.getMove(board, onPlayed);
+	else if (player == PLAYER_INDY) Indy.getMove(board, onPlayed);
 	
 	//Sync
 	else { 
@@ -40,16 +43,16 @@ Players.prototype.getMove = function(board, onPlayed) {
 		if (player == PLAYER_RANDOM) move = this.getRandom(board);		
 		
 		//Heuristic
-		else if (player == PLAYER_HEURISTIC) move = Heuristic.getMove(board);
+		//else if (player == PLAYER_HEURISTIC) move = Heuristic.getMove(board);
 		
 		//AB
 		else if (player == PLAYER_AB) move = AB.getMove(board);		
 		
 		//MC
-		else if (player == PLAYER_MC) move = MC.getMove(board);	
+		//else if (player == PLAYER_MC) move = MC.getMove(board);	
 		
 		//Alpha-Carlo
-		else if (player == PLAYER_ALPHA_CARLO) move = AlphaCarlo.getMove(board);		
+		//else if (player == PLAYER_ALPHA_CARLO) move = AlphaCarlo.getMove(board);		
 		
 		//Invalid
 		else move = {sr:INVALID, sc:INVALID};
