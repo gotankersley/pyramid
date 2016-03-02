@@ -55,8 +55,7 @@ var AB = (function() { //AB namespace (Module pattern)
 		//Anchor
 		if (depth >= MAX_DEPTH) { //Max depth - Score
 			//There shouldn't be any terminal nodes, (since they'd be found in the expansion)									
-			//return BB_heuristicScoreSide(player, turn) - BB_heuristicScoreSide(opp, oppTurn);						
-			return BB_heuristicScoreSide(player, turn);						
+			return BB_heuristicScoreSide(player, turn) - BB_heuristicScoreSide(opp, oppTurn);									
 		}
 		
 		//TODO: sort moves for greater glory?
