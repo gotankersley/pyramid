@@ -1,23 +1,9 @@
 All the ings:
 ---------
-Options Menu:
-- Display
--> themes
 
-- Animation
-- AI
--> Max time
--> suggest a move
--> scores
--Misc?
--> send results
-->
-
------
 AI player names
 Move DB
 Send analysis on demand
-links
 scale board
 Quad centers analysis
 arena tournament tool

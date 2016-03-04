@@ -64,6 +64,7 @@ var HOME_QUAD_END = [ [4,4],[3,4] ]; //[Player][Signal]
 var QUAD_MASKS = [0x1f, 0x3e0, 0x7c00, 0xf8000]; //By quad pos
 var CENTER_MASKS = [0x10, 0x100, 0x800, 0x8000]; //TL (4), TR (8), BL(11), BR(15)
 
+var QUAD_CENTERS = [ [0x21080, 0x21084], [0x1084, 0x21084] ]; //[Player][Signal] - For alternate win rule
 
 //Moves
 var AVAIL_MOVES = [0xe,0x35,0x1b,0x415,0x890e,0x1c2,0x2a0,0x360,0x8ab0,0x101c0,0x3808,0xd510,0x6c00,0x5400,0x43800,0x70910,0xa8200,0xd8000,0xac000,0x70000]; //By position
@@ -207,8 +208,86 @@ function BB_heuristicScoreSide(player, turn) {
 	return score;
 }
 
+function BB_heuristicScoreSide_Varient(player, turn) {
+	var score = 0;
+	var signal = (player & SIGNAL_MASK) >>> 20; //Sure, we COULD use an if here...
+		
+	//Loop through quads (ignore home if signal not set)	
+	for (var q = HOME_QUAD_START[turn][signal]; q < HOME_QUAD_END[turn][signal]; q++) {
+		var quad = (player & QUAD_MASKS[q]) >>> (q * QUAD_SPACES); //Shift all quads to first quad spot
+		
+		//Adjacent counts
+		score += (QUAD_PIN_COUNT[quad]) << 1;  //This should pick up diagonal slant tri's (e.g 0x15, and 0xe)
+		
+		//All the Q0 wins - 0x13,0x1a,0x19,0xb,0x7,0x16,0x1c,0xd
+		score += (QUAD_PIN_COUNT[(quad & 0x13)]) << 1; //Shift by 1 to weight the count so that more adjacents are worth more
+		score += (QUAD_PIN_COUNT[(quad & 0x1a)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0x19)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0xb)]) << 1;
+		
+		score += (QUAD_PIN_COUNT[(quad & 0x7)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0x16)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0x1c)]) << 1;
+		score += (QUAD_PIN_COUNT[(quad & 0xd)]) << 1;
+				
+	}
+	
+	//Center control rewards
+	var centerCount = 0;
+	if (player & CENTER_MASKS[0]) centerCount++;
+	else if (player & CENTER_MASKS[1]) centerCount++;
+	else if (player & CENTER_MASKS[2]) centerCount++;
+	else if (player & CENTER_MASKS[3]) centerCount++;
+	score += Math.min(3, centerCount);		
+	
+	score = bitCount(QUAD_CENTERS[turn][signal]) << 1; //Varient only
+	
+	//Penalty for being stuck in home quad
+	var homePins = player & HOME_QUAD_MASKS_BY_SIGNAL[turn][signal];
+	if (turn == P1)	score -= QUAD_PIN_COUNT[homePins];
+	else score -= (2 * QUAD_PIN_COUNT[homePins>>>15]);
+	
+	
+	//Moves available 
+	var dests = 0;
+	while (player) {
+        var minBit = player & -player; // isolate least significant bit
+        var pin = MASK_TO_POS[minBit>>>0];
+		player &= player-1;
+		dests |= AVAIL_MOVES[pin];
+	}	
+	score += bitCount(dests);
+	
+	return score;
+}
+
 
 function BB_isWin(player, turn, destPos) {		
+	var quadPos = Math.floor(destPos / QUAD_SPACES);	
+	var quad = (player & QUAD_MASKS[quadPos]) >>> (quadPos * QUAD_SPACES); //Shift quad to first spot	
+	var count = QUAD_PIN_COUNT[quad];
+	if (count >= 3) { 		
+		if (count == 3) { //Verify that the three forms a valid winning triangle
+			if ((quad & THREE_NO_WIN1) != THREE_NO_WIN1 &&
+				(quad & THREE_NO_WIN2) != THREE_NO_WIN2) {
+				if (player & SIGNAL_MASK) return true; //Home quad cleared, can win anywhere
+				else return NON_HOME_QUAD_WIN[turn][destPos]; //Check to make sure the win isn't in the home quad
+			}
+		}
+		else if (player & SIGNAL_MASK) return true; //More than three has to be a winning triangle, and home quad has been cleared
+		else return NON_HOME_QUAD_WIN[turn][destPos]; //Has a win, but home quad isn't clear - so make sure win isn't in the home quad
+	}
+	
+	return false;
+}
+
+function BB_isWin_Varient(player, turn, destPos) {		
+	//Alternate win rules
+	var signal = (player & SIGNAL_MASK) >>> 20;
+	var centers = QUAD_CENTERS[turn][signal];
+	if ((player & centers) == centers) return true;
+	
+	//Official rules
 	var quadPos = Math.floor(destPos / QUAD_SPACES);	
 	var quad = (player & QUAD_MASKS[quadPos]) >>> (quadPos * QUAD_SPACES); //Shift quad to first spot	
 	var count = QUAD_PIN_COUNT[quad];
@@ -257,7 +336,7 @@ function BB_fromUniqueId(id) {
 
 
 function BB_url(id) { //id may be either single bitboard, or uniqueId
-	var BASE_URL = 'http://localhost/';
+	var BASE_URL = 'http://gotankersley.github.io/pyramid/';
 	
 	//Figure out id type
 	if (id > BOARD_MASK) { //UniqueId

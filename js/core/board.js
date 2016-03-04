@@ -126,6 +126,39 @@ Board.prototype.getWinTriangle = function(prevMove) {
 	return null;
 }
 
+Board.prototype.getWinTriangle_Varient = function(prevMove) {		
+	var bb = this.bb;	
+	var player = bb[this.turn];
+	var signal = (player & SIGNAL_MASK) >>> 20; //Sure, we COULD use an if here...
+	
+	//Loop through the available wins to find the matching one
+	for (var w = 0; w < WINS.length; w++) {
+		var win = WINS[w];
+		if ((player & win) == win) {				
+			var points = bitScan(win);				
+			return [ //Convert points to RC for easier drawing
+				{r:POS_TO_R[points[0]], c:POS_TO_C[points[0]]}, //A 
+				{r:POS_TO_R[points[1]], c:POS_TO_C[points[1]]}, //B 
+				{r:POS_TO_R[points[2]], c:POS_TO_C[points[2]]}, //C 
+			];
+		}
+	}
+	
+	//Check for center
+	var centerMask = QUAD_CENTERS[this.turn][signal];
+	centerMask &= player;	
+	var pins = bitScan(centerMask);
+	if (pins.length == 3) {		
+		return [ //Convert points to RC for easier drawing
+					{r:POS_TO_R[pins[0]], c:POS_TO_C[pins[0]]}, //A 
+					{r:POS_TO_R[pins[1]], c:POS_TO_C[pins[1]]}, //B 
+					{r:POS_TO_R[pins[2]], c:POS_TO_C[pins[2]]}, //C 
+		];
+	}
+	return null;
+}
+
+
 Board.prototype.hasSignal = function(player) {
 	if (player == BOARD_PLAYER1) return (this.bb[P1] & SIGNAL_MASK);
 	else return (this.bb[P2] & SIGNAL_MASK);

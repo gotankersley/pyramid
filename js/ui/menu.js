@@ -3,6 +3,7 @@ function MenuProperties() {
 	this.animateHuman = this.getDefault('animateHuman', false);
 	this.arena = function() {window.location = 'arena.html'; }
 	this.bitTool = function() {window.location = 'bit-tool.html'; }	
+	this.centerWinVarient = false;
 	this.moveDelay = 100;
 	this.moveSpeed = 500;
 	this.player1 = PLAYER_HUMAN;
@@ -64,7 +65,7 @@ function MenuManager() {
 	
 	//Links menu
 	var linksMenu = optionsMenu.addFolder('Links');
-	linksMenu.add(this.properties, 'arena');
+	//linksMenu.add(this.properties, 'arena');
 	linksMenu.add(this.properties, 'bitTool');
 	linksMenu.add(this.properties, 'wiki');
 	
@@ -75,6 +76,7 @@ function MenuManager() {
 	animMenu.add(this.properties, 'moveDelay', 0, 10000);		
 			
 	optionsMenu.add(this.properties, 'sendAnalytics').onChange(this.onChangeAnalytics);
+	optionsMenu.add(this.properties, 'centerWinVarient').onChange(this.onChangeVarient);
 	optionsMenu.add(this.properties, 'reset');
 	
 	//Root menu		
@@ -96,6 +98,21 @@ MenuManager.prototype.onChangeTheme = function(val) {
 MenuManager.prototype.onChangeAnalytics = function(val) {	
 	if (!val) localStorage.setItem('NO_ANALYTICS', true);
 	else localStorage.removeItem('NO_ANALYTICS');
+}
+
+MenuManager.prototype.onChangeVarient = function(val) {	
+	//Swap
+	var tmpIsWinFn = BB_isWin_Varient;
+	BB_isWin_Varient = BB_isWin;
+	BB_isWin = tmpIsWinFn;
+	
+	var tmpScoreFn = BB_heuristicScoreSide_Varient;
+	BB_heuristicScoreSide_Varient = BB_heuristicScoreSide;
+	BB_heuristicScoreSide = tmpScoreFn;
+	
+	var tmpTriFn = Board.prototype.getWinTriangle_Varient;
+	Board.prototype.getWinTriangle_Varient = Board.prototype.getWinTriangle;
+	Board.prototype.getWinTriangle = tmpTriFn;
 }
 
 MenuManager.prototype.persistChange = function(val) {
