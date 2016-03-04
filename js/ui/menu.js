@@ -3,7 +3,7 @@ function MenuProperties() {
 	this.animateHuman = this.getDefault('animateHuman', false);
 	this.arena = function() {window.location = 'arena.html'; }
 	this.bitTool = function() {window.location = 'bit-tool.html'; }	
-	this.centerWinVarient = false;
+	this.centerWinVariant = false;
 	this.moveDelay = 100;
 	this.moveSpeed = 500;
 	this.player1 = PLAYER_HUMAN;
@@ -76,7 +76,7 @@ function MenuManager() {
 	animMenu.add(this.properties, 'moveDelay', 0, 10000);		
 			
 	optionsMenu.add(this.properties, 'sendAnalytics').onChange(this.onChangeAnalytics);
-	optionsMenu.add(this.properties, 'centerWinVarient').onChange(this.onChangeVarient);
+	optionsMenu.add(this.properties, 'centerWinVariant').onChange(this.onChangeVariant);
 	optionsMenu.add(this.properties, 'reset');
 	
 	//Root menu		
@@ -100,7 +100,7 @@ MenuManager.prototype.onChangeAnalytics = function(val) {
 	else localStorage.removeItem('NO_ANALYTICS');
 }
 
-MenuManager.prototype.onChangeVarient = function(val) {	
+MenuManager.prototype.onChangeVariant = function(val) {	
 	//Swap
 	var tmpIsWinFn = BB_isWin_Varient;
 	BB_isWin_Varient = BB_isWin;
