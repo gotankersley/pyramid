@@ -6,6 +6,7 @@ var PLAYER_NETWORK = 4;
 var PLAYER_MC = 5;
 var PLAYER_ALPHA_CARLO = 6;
 var PLAYER_INDY = 7;
+var PLAYER_PHAROAH = 8;
 
 
 var INVALID = -1;
@@ -35,6 +36,7 @@ Players.prototype.getMove = function(board, onPlayed) {
 	//Network (Async)
 	if (player == PLAYER_NETWORK) Network.getMove(board, onPlayed);
 	else if (player == PLAYER_INDY) Indy.getMove(board, onPlayed);
+	else if (player == PLAYER_PHAROAH) Pharoah.getMove(board, onPlayed);
 	
 	//Sync
 	else { 
