@@ -1,7 +1,7 @@
 //Multi-threaded search - NOTE: slave = thread
 var Pharoah = (function() { //Pharoah namespace (Module pattern)
 	var INFINITY = 1000000;
-	var MAX_THREADS = navigator.hardwareConcurrency; 
+	var MAX_THREADS = navigator.hardwareConcurrency || 8; 
 		
 	var threadDoneCount;	
 	var bb;
