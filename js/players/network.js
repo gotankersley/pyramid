@@ -11,8 +11,7 @@ var Network = (function() { //Network namespace (Module pattern)
 		for (var i = 0; i < history.length; i++) {
 			var qbn = new Board(history[i]).getQBN();
 			qbns.push(qbn);
-		}
-		console.log(qbns);
+		}		
 		ajax(url, qbns, function(data, status) {
 			//Expect a QMN String - Example: A5-B4  (dash is optional)
 			var qmnStr = data.qmn;
