@@ -91,7 +91,7 @@ Game.prototype.onGameOver = function(winner) {
 	args.qbns = qbns;
 	args.player1 = Players.getName(players[0]);
 	args.player2 = Players.getName(players[1]);
-	args.winner = Players.getName(winningPlayer);
+	args.winner = winningPlayer == BOARD_PLAYER1? 'player1' : 'player2';
 	
 	ajaxRequest(REPORT_URL, args, function(data) {
 		//No ack expected...
