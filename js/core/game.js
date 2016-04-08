@@ -78,6 +78,26 @@ Game.prototype.onGameOver = function(winner) {
 		winningHumanVsAI = true;
 	}	
 
+	//Report results - for analysis
+	var REPORT_URL = 'http://schneiderbox.net:5000/report';
+	
+	var args = {};
+	var qbns = [];
+	var history = this.history;
+	for (var i = 0; i < history.length; i++) {
+		var qbn = new Board(history[i]).getQBN();
+		qbns.push(qbn);
+	}		
+	args.qbns = qbns;
+	args.player1 = Players.getName(players[0]);
+	args.player2 = Players.getName(players[1]);
+	args.winner = Players.getName(winningPlayer);
+	
+	ajaxRequest(REPORT_URL, args, function(data) {
+		//No ack expected...
+	});
+		
+	
 	//Draw the win and other hoopla...
 	this.gameEvents['win'](winner, winningHumanVsAI);
 		

@@ -9,7 +9,7 @@ function MenuProperties() {
 	this.player1 = PLAYER_HUMAN;
 	this.player2 = PLAYER_HUMAN;
 	this.reset = this.resetPersisted;
-	this.sendAnalytics = localStorage.getItem('NO_ANALYTICS')? false : true;; //It will still ask the user to confirm
+	this.sendAnalytics = false;//localStorage.getItem('NO_ANALYTICS')? false : true; //It will still ask the user to confirm
 	this.showGrid = this.getDefault('showGrid', false);
 	this.showPositions = this.getDefault('showPositions', false);
 	this.showPaths = this.getDefault('showPaths', true);	

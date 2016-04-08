@@ -60,3 +60,15 @@ function getIpAddress(callback) {
 	//request.onerror = callback('error getting ip');
 	request.send();
 }
+
+function ajaxRequest(url, args, callback) { 
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', encodeURI(url));			
+	xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	xhr.onload = function() {
+		var data = JSON.parse(xhr.responseText);
+		callback(data, xhr.status);			
+	};
+	var argStr = 'data=' + JSON.stringify(args);
+	xhr.send(argStr);
+}

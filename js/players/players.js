@@ -68,4 +68,17 @@ Players.prototype.getRandom = function(board) {
 	else return moves[Math.floor(Math.random() * moves.length)];
 }
 
+Players.getName = function(playerType) {
+	
+	if (playerType == PLAYER_HUMAN) return 'human';
+	else if (playerType == PLAYER_RANDOM) return 'random'; 
+	else if (playerType == PLAYER_AB) return 'timid';
+	else if (playerType == PLAYER_HEURISTIC) return 'heuristic';
+	else if (playerType == PLAYER_NETWORK) return 'network';
+	else if (playerType == PLAYER_MC) return 'monte-carlo';
+	else if (playerType == PLAYER_ALPHA_CARLO) return 'alpha-carlo';
+	else if (playerType == PLAYER_INDY) return 'indy';
+	else if (playerType == PLAYER_PHAROAH) return 'king-tut';
+	else return 'unknown';
+}
 //End class Players
