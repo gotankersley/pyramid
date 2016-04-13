@@ -17,6 +17,15 @@ var Stage = (function() { //Stage namespace (module pattern)
 	var HIGHLIGHT_SIZE = PIN_SIZE + 2;
 
 	var SIGNAL_SIZE = 15;
+	
+	var RC_TO_QMN = [
+		[1,0,2,1,0,2], //Row 0
+		[0,3,0,0,3,0], //Row 1
+		[4,0,5,4,0,5], //Row 2
+		[1,0,2,1,0,2], //Row 3
+		[0,3,0,0,3,0], //Row 4
+		[4,0,5,4,0,5], //Row 5
+	];
 
 	//Enums
 	var MODE_SELECT_PIN = 0;
@@ -231,7 +240,8 @@ var Stage = (function() { //Stage namespace (module pattern)
 		//Draw board background - also clears the canvas		
 		ctx.fillStyle = theme.BOARD;
 		ctx.fillRect(0, 0, CANVAS_SIZE_X, CANVAS_SIZE_Y);
-
+		ctx.font = 'bold 15px Verdana';
+		
 		//Draw Grid (6x6)
 		if (menu.showGrid) drawGrid();
 		
@@ -257,8 +267,10 @@ var Stage = (function() { //Stage namespace (module pattern)
 					}
 					else drawPin(x, y, r, c, turn);
 					
+					//QMN numbers
+					if (menu.showQMN) drawQmnNumber(r,c);
 					//Number info
-					if (menu.showPositions) drawPosNumber(r, c);
+					else if (menu.showPositions) drawPosNumber(r, c);
 				}
 			}
 		}
@@ -270,7 +282,6 @@ var Stage = (function() { //Stage namespace (module pattern)
 		
 		//Draw signal indicators	
 		drawSignals();
-			
 		
 		//Draw win
 		if (mode == MODE_WIN) drawWin(turn);
@@ -280,6 +291,9 @@ var Stage = (function() { //Stage namespace (module pattern)
 		
 		//Draw repeat message
 		if (repeat !== null) drawRepeat();
+		
+		//QMN letters		
+		if (menu.showQMN) drawQmnLetters()		
 		
 		TWEEN.update(time);
 		requestAnimationFrame(draw.bind(this)); //Repaint
@@ -301,6 +315,28 @@ var Stage = (function() { //Stage namespace (module pattern)
 		ctx.fillStyle = '#fff';
 		var pos = RC_TO_POS[r][c];	
 		ctx.fillText(pos, (c * GRID_UNIT) + HALF_GRID - 10, (r * GRID_UNIT) + HALF_GRID) + 10;
+	}
+	
+	function drawQmnNumber(r, c) {			
+		var qmn = RC_TO_QMN[r][c];
+		if (qmn) {
+			ctx.fillStyle = '#fff';		
+			ctx.fillText(qmn, (c * GRID_UNIT) + HALF_GRID - 5, (r * GRID_UNIT) + HALF_GRID) + 15;
+		}
+	}
+	
+	function drawQmnLetters() {
+		ctx.font = '30px Verdana';
+		var x1 = 15;
+		var x2 = GRID_SIZE - 35;
+		var y1 = (QUAD_SIZE/2) + 10;
+		var y2 = QUAD_SIZE + y1;
+		
+		ctx.fillText('A', x1, y1);
+		ctx.fillText('C', x1, y2);
+		
+		ctx.fillText('B', x2, y1);
+		ctx.fillText('D', x2, y2);
 	}
 
 	function drawTurn(turn) {

@@ -13,6 +13,7 @@ function MenuProperties() {
 	this.showGrid = this.getDefault('showGrid', false);
 	this.showPositions = this.getDefault('showPositions', false);
 	this.showPaths = this.getDefault('showPaths', true);	
+	this.showQMN = this.getDefault('showQMN', false);
 	this.theme = this.getDefault('theme', 'default');
 	this.wiki = function() {window.location = 'https://github.com/gotankersley/pyramid/wiki'; }
 }
@@ -61,6 +62,7 @@ function MenuManager() {
 	displayMenu.add(this.properties, 'showGrid').onChange(this.persistChange);	
 	displayMenu.add(this.properties, 'showPositions').onChange(this.persistChange);	
 	displayMenu.add(this.properties, 'showPaths').onChange(this.persistChange);	
+	displayMenu.add(this.properties, 'showQMN').onChange(this.persistChange);	
 	displayMenu.add(this.properties, 'theme', THEME_OPTIONS).onChange(this.onChangeTheme);
 	
 	//Links menu
