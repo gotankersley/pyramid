@@ -23,7 +23,7 @@ var Timid = (function() { //Timid namespace (Module pattern)
 		if (bestScore <= -INFINITY+MAX_DEPTH) { //Kobayashi maru (Probably gonna lose)
 			if (DEBUG) {
 				console.log('Timid: Inevitable loss');						
-				sendMessage('Timid: Inevitable loss');
+				//sendMessage('Timid: Inevitable loss');
 			}
 			var playerKids = BB_getMoveBoards(player, opp, turn);			
 			var bestHeurScore = -INFINITY;
