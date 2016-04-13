@@ -173,18 +173,28 @@ var Stage = (function() { //Stage namespace (module pattern)
 		var y = e.clientY - canvasBounds.top;  
 
 		var r = Math.floor(y/GRID_UNIT);
-		var c = Math.floor(x/GRID_UNIT);
-		
-		if (selR == -1 || mode == MODE_SELECT_PIN) {
-			selR = r;
-			selC = c;
-			mode = MODE_SELECT_HOLE;
+		var c = Math.floor(x/GRID_UNIT);		
+		if (mode == MODE_SELECT_PIN ) {
+			if (r >= 0 && c >= 0 && board.get(r, c) == board.turn) {
+				selR = r;
+				selC = c;	
+				mode = MODE_SELECT_HOLE;			
+			}
 		}
 		else if (mode == MODE_SELECT_HOLE){
-			var move = {sr:selR, sc:selC, dr:r, dc:c};
-			selR = -1;
-			selC = -1;
-			onGameMove(move, PLAYER_HUMAN);								
+			if (r >= 0 && c >= 0) {
+				if (board.get(r, c) == BOARD_EMPTY) {
+					var move = {sr:selR, sc:selC, dr:r, dc:c};
+					selR = -1;
+					selC = -1;			
+					onGameMove(move, PLAYER_HUMAN);								
+				}
+				else {
+					selR = r;
+					selC = c;	
+					mode = MODE_SELECT_HOLE;	
+				}
+			}
 		}	
 
 	}
