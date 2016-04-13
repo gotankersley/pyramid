@@ -15,7 +15,6 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 		
 	//This assumes that there is at least one valid move to play
 	function getMove(board) { 
-		console.log(losingUids);
 		//Init
 		var bb = board.bb;
 		var turn = board.turn;
@@ -32,7 +31,7 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 		if (bestScore == -INFINITY) { //Probably gonna lose		
 			if (DEBUG) console.log('Elephant: Inevitable loss');
 			var moves = board.getMoves();			
-			return moves[Math.floor(Math.random() * moves.length)]; //TODO: Make a random move - hope springeth eternal...			
+			return moves[0]; //TODO: Make a random move - hope springeth eternal...			
 		}
 		else {
 			//DEBUG

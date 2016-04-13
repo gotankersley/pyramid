@@ -17,11 +17,11 @@ var Timid = (function() { //Timid namespace (Module pattern)
 		var opp = bb[oppTurn];
 		bestMoveAtDepth = new Array(MAX_DEPTH);
 		bestScoreAtDepth = new Array(MAX_DEPTH);
-		
+		//http://localhost:8080/pyramid/?id=4969379447872
 		
 		//Alpha beta driver		
 		var bestScore = negamax(player, opp, turn, -INFINITY, INFINITY, 0);				
-		if (bestScore == -INFINITY) { //Probably gonna lose		
+		if (bestScore <= -INFINITY+MAX_DEPTH) { //Probably gonna lose		
 			if (DEBUG) console.log('Timid: Inevitable loss');
 			var moves = board.getMoves();			
 			return moves[Math.floor(Math.random() * moves.length)]; //Make a random move - hope springeth eternal...			
@@ -73,8 +73,9 @@ var Timid = (function() { //Timid namespace (Module pattern)
 			//Win
 			if (BB_isWin(kid, turn, destPos)) {
 				bestMoveAtDepth[depth] = kid;
-				bestScoreAtDepth[depth] = INFINITY;
-				return INFINITY;
+				var infin = INFINITY + (MAX_DEPTH - depth);
+				bestScoreAtDepth[depth] = infin;
+				return infin;
 			}
 			
 		}
@@ -101,12 +102,12 @@ var Timid = (function() { //Timid namespace (Module pattern)
 					}//end bitscan loop					
 					break; //There might be other losses, (and this is actually a terminal node), but this assumes that it'll be more efficient to ignore it
 				}
-				else return -INFINITY; //Loss					
+				else return -INFINITY - (-depth); //Loss - deeper is better				
 			}
 		}
 
 		//Loop through available moves again to actually expand		
-		var bestScore = -INFINITY;		
+		var bestScore = -INFINITY;
 		if (needToBlock.length > 1) playerKids = needToBlock; //If we are forced to block, then those are the only possible moves		
 
 		for (var k = 1; k < playerKids.length; k+=2) { 
