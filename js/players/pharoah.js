@@ -66,8 +66,8 @@ var Pharoah = (function() { //Pharoah namespace (Module pattern)
 		//Make sure the last thread has finished	
 		if (threadDoneCount == moves.length) { 
 			var bestScore = -INFINITY;
-			
-			var bestMove;
+			var bestDepth = depths[0];
+			var bestMove = 0;
 			//console.log('Pharoah:');
 			for (var m = 0; m < moves.length; m++) {
 				var score = scores[m];
@@ -76,7 +76,7 @@ var Pharoah = (function() { //Pharoah namespace (Module pattern)
 				if (score > bestScore) {
 					bestScore = score;
 					bestMove = m;
-					bestDepth = depth;
+					bestDepth = depth;					
 				}
 				else if (score == bestScore) {
 					//Choose the quickest win
