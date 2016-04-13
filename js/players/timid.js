@@ -1,4 +1,4 @@
-var AB = (function() { //AB namespace (Module pattern)
+var Timid = (function() { //Timid namespace (Module pattern)
 	var INFINITY = 1000000;	
 	var MAX_DEPTH = 8;
 	var DEBUG = true;
@@ -135,4 +135,4 @@ var AB = (function() { //AB namespace (Module pattern)
 	
 	//Exports
 	return {getMove:getMove};
-})(); //End AB namespace
+})(); //End Timid namespace

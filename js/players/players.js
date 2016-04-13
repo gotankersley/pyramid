@@ -1,6 +1,6 @@
 var PLAYER_HUMAN = 0;
 var PLAYER_RANDOM = 1;
-var PLAYER_AB = 2;
+var PLAYER_TIMID = 2;
 var PLAYER_HEURISTIC = 3;
 var PLAYER_NETWORK = 4;
 var PLAYER_MC = 5;
@@ -48,7 +48,7 @@ Players.prototype.getMove = function(board, onPlayed) {
 		//else if (player == PLAYER_HEURISTIC) move = Heuristic.getMove(board);
 		
 		//AB
-		else if (player == PLAYER_AB) move = AB.getMove(board);		
+		else if (player == PLAYER_TIMID) move = Timid.getMove(board);		
 		
 		//MC
 		//else if (player == PLAYER_MC) move = MC.getMove(board);	
@@ -72,7 +72,7 @@ Players.getName = function(playerType) {
 	
 	if (playerType == PLAYER_HUMAN) return 'human';
 	else if (playerType == PLAYER_RANDOM) return 'random'; 
-	else if (playerType == PLAYER_AB) return 'timid';
+	else if (playerType == PLAYER_TIMID) return 'timid';
 	else if (playerType == PLAYER_HEURISTIC) return 'heuristic';
 	else if (playerType == PLAYER_NETWORK) return 'network';
 	else if (playerType == PLAYER_MC) return 'monte-carlo';
