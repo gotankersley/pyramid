@@ -9,6 +9,7 @@
 	</head>
 	<body>	
 		<canvas id="main-canvas" width="600" height="700"></canvas>	
+		<div id="message"></div>
 		<script src="js/lib/dat.gui.min.js"></script>
 		<script src="js/lib/draw-lib.js"></script>
 		<script src="js/lib/bit-lib.js"></script>
@@ -35,6 +36,17 @@
 		Stage.init(game); 
 		</script>
 		<link rel="stylesheet" href="css/dat-gui-light.css"/><!-- needs to be last -->
-		
+		<style>
+		#message {
+			display:none;
+			margin: 0;
+			background-color: rgba(113, 125, 151, 0.7); 
+			color: rgba(113, 125, 151, 0.7);
+			font-size: 30px;
+			text-align:center;
+			height: 100px;
+			width: 700px;
+		}
+		</style>
 	</body>
 </html>

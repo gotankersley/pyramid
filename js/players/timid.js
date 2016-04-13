@@ -8,7 +8,7 @@ var Timid = (function() { //Timid namespace (Module pattern)
 		
 	//This assumes that there is at least one valid move to play
 	function getMove(board) { 
-	
+		
 		//Init
 		var bb = board.bb;
 		var turn = board.turn;
@@ -21,7 +21,10 @@ var Timid = (function() { //Timid namespace (Module pattern)
 		//Alpha beta driver		
 		var bestScore = negamax(player, opp, turn, -INFINITY, INFINITY, 0);				
 		if (bestScore <= -INFINITY+MAX_DEPTH) { //Kobayashi maru (Probably gonna lose)
-			if (DEBUG) console.log('Timid: Inevitable loss');						
+			if (DEBUG) {
+				console.log('Timid: Inevitable loss');						
+				sendMessage('Timid: Inevitable loss');
+			}
 			var playerKids = BB_getMoveBoards(player, opp, turn);			
 			var bestHeurScore = -INFINITY;
 			var bestHeurKid;
