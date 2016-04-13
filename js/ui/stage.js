@@ -200,13 +200,14 @@ var Stage = (function() { //Stage namespace (module pattern)
 		}
 		else if (mode == MODE_SELECT_HOLE){
 			if (r >= 0 && c >= 0) {
-				if (board.get(r, c) == BOARD_EMPTY) {
+				var space = board.get(r, c);
+				if (space == BOARD_EMPTY) {
 					var move = {sr:selR, sc:selC, dr:r, dc:c};
 					selR = -1;
 					selC = -1;			
 					onGameMove(move, PLAYER_HUMAN);								
 				}
-				else {
+				else if (space == board.turn) {
 					selR = r;
 					selC = c;	
 					mode = MODE_SELECT_HOLE;	
