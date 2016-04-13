@@ -16,15 +16,25 @@ var Timid = (function() { //Timid namespace (Module pattern)
 		var oppTurn = +(!turn);
 		var opp = bb[oppTurn];
 		bestMoveAtDepth = new Array(MAX_DEPTH);
-		bestScoreAtDepth = new Array(MAX_DEPTH);
-		//http://localhost:8080/pyramid/?id=4969379447872
+		bestScoreAtDepth = new Array(MAX_DEPTH);		
 		
 		//Alpha beta driver		
 		var bestScore = negamax(player, opp, turn, -INFINITY, INFINITY, 0);				
-		if (bestScore <= -INFINITY+MAX_DEPTH) { //Probably gonna lose		
-			if (DEBUG) console.log('Timid: Inevitable loss');
-			var moves = board.getMoves();			
-			return moves[Math.floor(Math.random() * moves.length)]; //Make a random move - hope springeth eternal...			
+		if (bestScore <= -INFINITY+MAX_DEPTH) { //Kobayashi maru (Probably gonna lose)
+			if (DEBUG) console.log('Timid: Inevitable loss');						
+			var playerKids = BB_getMoveBoards(player, opp, turn);			
+			var bestHeurScore = -INFINITY;
+			var bestHeurKid;
+			for (var k = 1; k < playerKids.length; k+=2) {
+				var kid = playerKids[k];
+				var score = BB_heuristicScoreSide(kid, oppTurn) - BB_heuristicScoreSide(opp, turn);				
+				if (score > bestHeurScore) {
+					bestHeurScore = score;
+					bestHeurKid = kid;
+				}
+			}
+			var move = BB_deriveMove(player, bestHeurKid);			
+			return move;//Make the best of a bad situation			
 		}
 		else {
 			//DEBUG
@@ -102,7 +112,7 @@ var Timid = (function() { //Timid namespace (Module pattern)
 					}//end bitscan loop					
 					break; //There might be other losses, (and this is actually a terminal node), but this assumes that it'll be more efficient to ignore it
 				}
-				else return -INFINITY - (-depth); //Loss - deeper is better				
+				else return -INFINITY + depth; //Loss
 			}
 		}
 

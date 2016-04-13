@@ -28,10 +28,21 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 		
 		//Alpha beta driver		
 		var bestScore = negamax(player, opp, turn, -INFINITY, INFINITY, 0);				
-		if (bestScore == -INFINITY) { //Probably gonna lose		
-			if (DEBUG) console.log('Elephant: Inevitable loss');
-			var moves = board.getMoves();			
-			return moves[0]; //TODO: Make a random move - hope springeth eternal...			
+		if (bestScore <= -INFINITY+MAX_DEPTH) { //Kobayashi maru (Probably gonna lose)
+			if (DEBUG) console.log('Timid: Inevitable loss');						
+			var playerKids = BB_getMoveBoards(player, opp, turn);			
+			var bestHeurScore = -INFINITY;
+			var bestHeurKid;
+			for (var k = 1; k < playerKids.length; k+=2) {
+				var kid = playerKids[k];
+				var score = BB_heuristicScoreSide(kid, oppTurn) - BB_heuristicScoreSide(opp, turn);				
+				if (score > bestHeurScore) {
+					bestHeurScore = score;
+					bestHeurKid = kid;
+				}
+			}
+			var move = BB_deriveMove(player, bestHeurKid);			
+			return move;//Make the best of a bad situation	
 		}
 		else {
 			//DEBUG
@@ -80,8 +91,9 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 			//Win
 			if (BB_isWin(kid, turn, destPos)) {
 				bestMoveAtDepth[depth] = kid;
-				bestScoreAtDepth[depth] = INFINITY;
-				return INFINITY;
+				var infin = INFINITY + (MAX_DEPTH - depth);
+				bestScoreAtDepth[depth] = infin;
+				return infin;
 			}
 			
 		}
@@ -108,7 +120,7 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 					}//end bitscan loop					
 					break; //There might be other losses, (and this is actually a terminal node), but this assumes that it'll be more efficient to ignore it
 				}
-				else return -INFINITY; //Loss					
+				else return -INFINITY + depth; //Loss				
 			}
 		}
 
