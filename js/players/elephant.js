@@ -2,23 +2,24 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 	var INFINITY = 1000000;	
 	var MAX_DEPTH = 8;
 	var DEBUG = true;
+	var LOSING_SCORE = 100;
 	
 	var bestMoveAtDepth = []; //The moved board state
 	var bestScoreAtDepth = [];
 	
 	var losingUids = {};
-	
+	var actualTurn;
 	Analytics.getLosses(function(losses) {
-		losingUids = losses;
-		console.log('done', losingUids);
+		losingUids = (!losses)? {} : losses; //This will be updated each time a report is sent		
 	});
 		
 	//This assumes that there is at least one valid move to play
 	function getMove(board) { 
-		
+		console.log(losingUids);
 		//Init
 		var bb = board.bb;
 		var turn = board.turn;
+		actualTurn = turn;
 		var player = bb[turn];
 		var oppTurn = +(!turn);
 		var opp = bb[oppTurn];
@@ -112,19 +113,30 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 			}
 		}
 
+		var curBB = [0,0];
+		curBB[turn] = player;
+		curBB[oppTurn] = opp;
+		var curUid = BB_toUniqueId(curBB, turn);		
+		var losingMids = losingUids[curUid];
 		//Loop through available moves again to actually expand		
 		var bestScore = -INFINITY;		
 		if (needToBlock.length > 1) playerKids = needToBlock; //If we are forced to block, then those are the only possible moves		
-
 		for (var k = 1; k < playerKids.length; k+=2) { 
 			var kid = playerKids[k];
+			var srcPos = BB_deriveSrc(player, kid);
 			var destPos = playerKids[k+1];
 			var newBB = [0,0];
 			newBB[turn] = kid;
 			newBB[oppTurn] = opp;
-			var uniqueId = BB_toUniqueId(newBB, oppTurn);
-			
-			var recursedScore = recursedScore = negamax(opp, kid, oppTurn, -beta, -Math.max(alpha, bestScore), depth+1);						
+			var uniqueId = BB_toUniqueId(newBB, oppTurn);			
+			var recursedScore;
+			if (turn == actualTurn && losingMids) { //Board state has been saved - (But not necessarily this move has been saved) 
+				var mid = srcPos + (destPos << 8);								
+				var losingMidScore = losingMids[mid];
+				if (losingMids[mid]) recursedScore = losingMidScore * LOSING_SCORE; //Check to see if move has been saved				
+				else recursedScore = negamax(opp, kid, oppTurn, -beta, -Math.max(alpha, bestScore), depth+1); 
+			}
+			else recursedScore = negamax(opp, kid, oppTurn, -beta, -Math.max(alpha, bestScore), depth+1);						
 			
 			var currentScore = -recursedScore;
 

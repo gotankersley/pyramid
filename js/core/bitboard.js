@@ -95,8 +95,7 @@ function BB_new() {
 
 
 function BB_deriveMove(original, changed) {
-	//Derive move made by looking at changed board state
-	//var original = bb[bb[TURN]] & NOT_SIGNAL;
+	//Derive move made by looking at changed board state	
 	original &= NOT_SIGNAL;
 	changed &= NOT_SIGNAL;
 	var combined = original | changed;
@@ -111,12 +110,20 @@ function BB_deriveMove(original, changed) {
 }
 
 function BB_deriveMovePos(original, changed) {
-	//Derive move made by looking at changed board state
-	//var original = bb[bb[TURN]] & NOT_SIGNAL;
+	//Derive move made by looking at changed board state	
 	original &= NOT_SIGNAL;
 	changed &= NOT_SIGNAL;
 	var combined = original | changed;
 	return {src: MASK_TO_POS[changed ^ combined], dest: MASK_TO_POS[original ^ combined]};
+	
+}
+
+function BB_deriveSrc(original, changed) {
+	//Derive move made by looking at changed board state	
+	original &= NOT_SIGNAL;
+	changed &= NOT_SIGNAL;
+	var combined = original | changed;
+	return MASK_TO_POS[changed ^ combined];
 	
 }
 
