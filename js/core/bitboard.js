@@ -110,6 +110,25 @@ function BB_deriveMove(original, changed) {
 	}
 }
 
+function BB_deriveMovePos(original, changed) {
+	//Derive move made by looking at changed board state
+	//var original = bb[bb[TURN]] & NOT_SIGNAL;
+	original &= NOT_SIGNAL;
+	changed &= NOT_SIGNAL;
+	var combined = original | changed;
+	return {src: MASK_TO_POS[changed ^ combined], dest: MASK_TO_POS[original ^ combined]};
+	
+}
+
+function BB_midFromUids(uid1, uid2) {
+	var bb1 = BB_fromUniqueId(uid1); 
+	var bb2 = BB_fromUniqueId(uid2); 
+	var bb1Turn = bb1.pop();
+	var bb2Turn = bb2.pop();
+	
+	return BB_deriveMovePos(bb1[bb1Turn], bb2[bb1Turn]);
+}
+
 
 function BB_getMoves(bb, turn) {	
 	var player = bb[turn];

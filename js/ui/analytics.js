@@ -5,10 +5,39 @@ var Analytics = (function() { //Analytics namespace (module pattern)
 	var URL_MODAL_LIB = 'js/lib/pico-modal-2.3.0.min.js';
 	var URL_FIREBASE_CDN = 'https://cdn.firebase.com/js/client/2.2.1/firebase.js';
 	var URL_FIREBASE_DATA = 'https://pyramidquadtria.firebaseio.com/data';
+	var URL_FIREBASE_REPORT = 'https://pyramidquadtria.firebaseio.com/loss-uids';
 	
 	//Delays
 	var DELAY_ASK = 1500; //MS
 	var DELAY_THANKS = 650; //MS
+	
+	function report(mids) {
+
+		loadScriptFile(URL_FIREBASE_CDN, function() {
+			var db = new Firebase(URL_FIREBASE_REPORT);
+			var uids = Object.keys(mids);
+			for (u = 0; u < uids.length; u++) {
+				var uid = uids[u];
+				var mid = mids[uid];
+				db.child(uid).child(mid).transaction(function (curVal) {
+					return (curVal || 0) + 1;
+				});
+			}
+			
+		});
+	}
+	
+	function getLosses(onLoaded) {		
+		loadScriptFile(URL_FIREBASE_CDN, function() {
+			var db = new Firebase(URL_FIREBASE_REPORT);
+			db.on('value', function(snapshot) {
+				onLoaded(snapshot.val());
+			}, function (errorObject) {
+				console.log('The read failed: ' + errorObject.code);
+				onLoaded({});
+			});
+		});
+	}
 	
 	function show(winner) {
 		if (typeof(picoModal) == 'undefined') { //Load the modal library
@@ -87,7 +116,7 @@ var Analytics = (function() { //Analytics namespace (module pattern)
 	}
 	
 	//Exports
-	return {show:show};
+	return {show:show, report:report, getLosses:getLosses};
 	
 })();
 //End Analytics namespace

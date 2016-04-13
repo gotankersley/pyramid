@@ -47,7 +47,7 @@ MenuProperties.prototype.resetPersisted = function() {
 //Class MenuManager
 var MENU_PREFIX = 'PYRA.';
 function MenuManager() {
-	var PLAYER_OPTIONS = {Human:PLAYER_HUMAN,Indy:PLAYER_INDY, Network:PLAYER_NETWORK, Random:PLAYER_RANDOM, Timid:PLAYER_TIMID, 'King Tut':PLAYER_PHAROAH};	
+	var PLAYER_OPTIONS = {Human:PLAYER_HUMAN,Indy:PLAYER_INDY, Network:PLAYER_NETWORK, Random:PLAYER_RANDOM, Timid:PLAYER_TIMID, 'King Tut':PLAYER_PHAROAH, 'Elephant':PLAYER_ELEPHANT};	
 	var THEME_OPTIONS = Object.keys(THEMES);
 	
 	this.properties = new MenuProperties();

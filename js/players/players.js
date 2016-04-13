@@ -7,6 +7,7 @@ var PLAYER_MC = 5;
 var PLAYER_ALPHA_CARLO = 6;
 var PLAYER_INDY = 7;
 var PLAYER_PHAROAH = 8;
+var PLAYER_ELEPHANT = 9;
 
 
 var INVALID = -1;
@@ -47,8 +48,11 @@ Players.prototype.getMove = function(board, onPlayed) {
 		//Heuristic
 		//else if (player == PLAYER_HEURISTIC) move = Heuristic.getMove(board);
 		
-		//AB
+		//Timid 		
 		else if (player == PLAYER_TIMID) move = Timid.getMove(board);		
+		
+		//Elephant 
+		else if (player == PLAYER_ELEPHANT) move = Elephant.getMove(board);		
 		
 		//MC
 		//else if (player == PLAYER_MC) move = MC.getMove(board);	
@@ -79,6 +83,7 @@ Players.getName = function(playerType) {
 	else if (playerType == PLAYER_ALPHA_CARLO) return 'alpha-carlo';
 	else if (playerType == PLAYER_INDY) return 'indy';
 	else if (playerType == PLAYER_PHAROAH) return 'king-tut';
+	else if (playerType == PLAYER_ELEPHANT) return 'elephant';
 	else return 'unknown';
 }
 //End class Players

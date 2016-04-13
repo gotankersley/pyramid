@@ -72,7 +72,8 @@ Game.prototype.onGameOver = function(winner) {
 	//Option to send game analytics if it is a Human winner is playing an AI
 	var players = [this.players.player1, this.players.player2];
 	var winningPlayer = players[winner];
-	var losingPlayer = players[+(!winner)];
+	var loser = +(!winner);
+	var losingPlayer = players[loser];
 	var winningHumanVsAI = false; //Don't send for AI players
 	if (winningPlayer == PLAYER_HUMAN && losingPlayer != PLAYER_HUMAN) {	
 		winningHumanVsAI = true;
@@ -96,7 +97,7 @@ Game.prototype.onGameOver = function(winner) {
 	//ajaxRequest(REPORT_URL, args, function(data) {
 	//	//No ack expected...
 	//});
-		
+	if (losingPlayer == PLAYER_ELEPHANT) Analytics.report(this.getLosingMids(loser));
 	
 	//Draw the win and other hoopla...
 	this.gameEvents['win'](winner, winningHumanVsAI);
@@ -149,6 +150,21 @@ Game.prototype.load = function(gameLog) {
 		var id = gameLog[i];		
 	}	
 }
+
+Game.prototype.getLosingMids = function(losingPlayerOffset) {
+	//Get mids
+	var mids = {};
+	var uniqueIds = this.history;
+	for (var u = 1 + losingPlayerOffset; u < uniqueIds.length; u+=2) { //Only get loser's moves
+		var uid1 = uniqueIds[u-1];
+		var uid2 = uniqueIds[u];			
+		var pos = BB_midFromUids(uid1, uid2);
+		
+		mids[uid1] = pos.src + (pos.dest << 8);
+	}
+	return mids;
+}
+
 //end class Game
 
 
