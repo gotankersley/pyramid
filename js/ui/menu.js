@@ -11,6 +11,7 @@ function MenuProperties() {
 	this.reset = this.resetPersisted;
 	this.sendAnalytics = false;//localStorage.getItem('NO_ANALYTICS')? false : true; //It will still ask the user to confirm
 	this.showGrid = this.getDefault('showGrid', false);
+	this.showMessages = this.getDefault('showMessages', true);
 	this.showPositions = this.getDefault('showPositions', false);
 	this.showPaths = this.getDefault('showPaths', true);	
 	this.showQMN = this.getDefault('showQMN', false);
@@ -60,6 +61,7 @@ function MenuManager() {
 	//Display menu
 	var displayMenu = optionsMenu.addFolder('Display');
 	displayMenu.add(this.properties, 'showGrid').onChange(this.persistChange);	
+	displayMenu.add(this.properties, 'showMessages').onChange(this.persistChange);	
 	displayMenu.add(this.properties, 'showPositions').onChange(this.persistChange);	
 	displayMenu.add(this.properties, 'showPaths').onChange(this.persistChange);	
 	displayMenu.add(this.properties, 'showQMN').onChange(this.persistChange);	

@@ -29,7 +29,10 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 		//Alpha beta driver		
 		var bestScore = negamax(player, opp, turn, -INFINITY, INFINITY, 0);				
 		if (bestScore <= -INFINITY+MAX_DEPTH) { //Kobayashi maru (Probably gonna lose)
-			if (DEBUG) console.log('Timid: Inevitable loss');						
+			if (DEBUG) {
+				console.log('Elephant: Inevitable loss');						
+				sendMessage('Elephant says: Inevitable loss...');
+			}
 			var playerKids = BB_getMoveBoards(player, opp, turn);			
 			var bestHeurScore = -INFINITY;
 			var bestHeurKid;
@@ -46,7 +49,8 @@ var Elephant = (function() { //Elephant namespace (Module pattern)
 		}
 		else {
 			//DEBUG
-			if (DEBUG) {				
+			if (DEBUG) {	
+				if (bestScore >= INFINITY - MAX_DEPTH) sendMessage('Elephant says: Win found...');			
 				var newBB = [0,0];
 				newBB[turn] = player;
 				newBB[oppTurn] = opp;

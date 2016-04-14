@@ -8,8 +8,8 @@
 		<link rel="shortcut icon" href="img/favicon.ico" />		
 	</head>
 	<body>	
-		<canvas id="main-canvas" width="600" height="700"></canvas>	
-		<div id="message"></div>
+		<canvas id="main-canvas" width="600" height="640"></canvas>	
+		<div id="message">abc</div>
 		<script src="js/lib/dat.gui.min.js"></script>
 		<script src="js/lib/draw-lib.js"></script>
 		<script src="js/lib/bit-lib.js"></script>
@@ -37,17 +37,22 @@
 		</script>
 		<link rel="stylesheet" href="css/dat-gui-light.css"/><!-- needs to be last -->
 		<style>
-		#message {
-			display:none;
-			margin: 0;
-			box-shadow: 0px 0px 8px #ffffff; 
-			-webkit-box-shadow: 0px 0px 8px #ffffff; 
-			-ms-box-shadow: 0px 0px 8px #ffffff;
-			-o-box-shadow: 0px 0px 8px #ffffff; 
-			font-size: 30px;
-			text-align:center;
-			height: 100px;
-			width: 700px;
+		#message {	
+			display: none;
+			margin: 0;			
+			background: -moz-linear-gradient(top, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+			background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(147,206,222,1)), color-stop(41%, rgba(117,189,209,1)), color-stop(100%, rgba(73,165,191,1)));
+			background: -webkit-linear-gradient(top, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+			background: -o-linear-gradient(top, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+			background: -ms-linear-gradient(top, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+			background: linear-gradient(to bottom, rgba(147,206,222,1) 0%, rgba(117,189,209,1) 41%, rgba(73,165,191,1) 100%);
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#93cede', endColorstr='#49a5bf', GradientType=0 );
+			color: white;
+			font-size: 20px;
+			font-family: arial;			
+			
+			width: 580px;
+			padding: 10px;			
 		}
 		</style>
 	</body>

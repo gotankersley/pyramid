@@ -1,12 +1,14 @@
 'use strict'
 var menu;
 function sendMessage(text) {
-	var msg = document.getElementById('message');
-	msg.innerText = text;
-	msg.style.display = 'block';
-	setTimeout(function() {
-		msg.style.display = 'none';
-	},5000);
+	if (menu.showMessages) {
+		var msg = document.getElementById('message');
+		msg.innerText = text;
+		msg.style.display = 'block';
+		setTimeout(function() {
+			msg.style.display = 'none';
+		}, 3000);
+	}
 }
 var Stage = (function() { //Stage namespace (module pattern)
 
